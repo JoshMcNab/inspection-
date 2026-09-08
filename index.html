@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Vehicle Inspection Pro">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+<title>Vehicle Inspection Pro</title>
+</head>
+<body>
+<header><div class="brand">🔧 <span>Vehicle Inspection Pro</span></div><button id="homeBtn" class="icon">⌂</button></header>
+
+<main>
+<section id="home" class="screen active">
+  <div class="hero"><div><p class="eyebrow">WORKSHOP</p><h1>Vehicle Inspection</h1><p>Fast, professional inspections built for your iPhone.</p></div><div class="hero-icon">🚗</div></div>
+  <button class="primary big" onclick="startInspection()">＋ New Inspection</button>
+  <div class="cards">
+    <div class="stat"><b id="savedCount">0</b><span>Saved inspections</span></div>
+    <div class="stat"><b>iPhone</b><span>Touch friendly</span></div>
+  </div>
+  <h2>Recent inspections</h2><div id="recent" class="list empty">No inspections yet.</div>
+</section>
+
+<section id="details" class="screen">
+  <div class="progress"><span id="progress"></span></div>
+  <p class="eyebrow">STEP 1 OF 3</p><h1>Vehicle details</h1>
+  <div class="form">
+    <label>Customer name<input id="customer" placeholder="e.g. John Smith"></label>
+    <label>Registration<input id="reg" placeholder="e.g. AB21 XYZ" autocapitalize="characters"></label>
+    <label>Make & model<input id="model" placeholder="e.g. Ford Transit"></label>
+    <div class="two"><label>Year<input id="year" inputmode="numeric" placeholder="2022"></label><label>Mileage<input id="mileage" inputmode="numeric" placeholder="45000"></label></div>
+    <label>VIN (optional)<input id="vin" placeholder="VIN"></label>
+  </div>
+  <button class="primary big" onclick="beginChecklist()">Start inspection →</button>
+</section>
+
+<section id="checklist" class="screen">
+  <div class="toprow"><div><p class="eyebrow" id="sectionLabel"></p><h1 id="itemTitle"></h1></div><div class="counter" id="counter"></div></div>
+  <div class="item-card">
+    <p id="itemHelp"></p>
+    <div class="status-grid">
+      <button data-status="pass" onclick="setStatus('pass')">✓<span>PASS</span></button>
+      <button data-status="advisory" onclick="setStatus('advisory')">!<span>ADVISORY</span></button>
+      <button data-status="fail" onclick="setStatus('fail')">×<span>FAIL</span></button>
+    </div>
+    <label>Notes<textarea id="notes" placeholder="Add notes for this item..."></textarea></label>
+    <label class="photo">📷 Add photo<input type="file" accept="image/*" capture="environment" id="photo"></label>
+    <div id="photoPreview"></div>
+  </div>
+  <div class="nav"><button class="secondary" onclick="prevItem()">← Back</button><button class="primary" id="nextBtn" onclick="nextItem()">Next →</button></div>
+</section>
+
+<section id="summary" class="screen">
+  <p class="eyebrow">STEP 3 OF 3</p><h1>Inspection summary</h1>
+  <div id="summaryStats" class="summary-grid"></div>
+  <label>Overall comments<textarea id="overall" placeholder="Overall condition, recommendations, customer comments..."></textarea></label>
+  <div class="signature-box"><p>Technician signature</p><canvas id="sig"></canvas><button class="secondary small" onclick="clearSig()">Clear</button></div>
+  <button class="primary big" onclick="saveInspection()">✓ Save inspection</button>
+  <button class="secondary big" onclick="window.print()">🖨 Print / Save PDF</button>
+</section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
