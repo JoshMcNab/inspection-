@@ -10,7 +10,8 @@
     "workshop-admin":"admin",
     "workshop-pro":"pro",
     "workshop-inspections":"inspections",
-    "workshop-restore":"restore"
+    "workshop-restore":"restore",
+    "workshop-customer":"customer"
   };
 
   function gate(){return document.getElementById("pinGate")}
@@ -84,4 +85,12 @@
     ensureUserSelect();const b=document.getElementById("pinSubmit");if(b)b.textContent="Sign in";
     b?.addEventListener("click",submitPin);document.getElementById("pinInput")?.addEventListener("keydown",e=>{if(e.key==="Enter")submitPin()});document.getElementById("lockBtn")?.addEventListener("click",lock);validateToken();
   });
+})();
+
+(()=>{
+  if(document.querySelector('script[data-progress-v16]'))return;
+  const s=document.createElement('script');
+  s.src='progress-v16.js?v=16';
+  s.dataset.progressV16='1';
+  document.head.appendChild(s);
 })();
