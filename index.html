@@ -12,17 +12,37 @@
 <title>Vehicle Inspection Pro</title>
 </head>
 <body>
-<header><div class="brand"><img src="logo.png" class="brand-logo" alt="Ultimate Automotive Works"><span>Vehicle Inspection Pro</span></div><button id="homeBtn" class="icon">⌂</button></header>
+<header><div class="app-name">Vehicle Inspection Pro</div><button id="homeBtn" class="icon" aria-label="Home">⌂</button></header>
 
 <main>
 <section id="home" class="screen active">
-  <div class="hero"><div><p class="eyebrow">WORKSHOP</p><h1>Vehicle Inspection</h1><p>Fast, professional inspections built for your iPhone.</p></div><div class="hero-icon">🚗</div></div>
+  <div class="hero brand-hero">
+    <img src="logo.png" class="hero-logo" alt="Ultimate Automotive Works">
+    <div class="hero-copy"><p class="eyebrow">WORKSHOP</p><h1>Vehicle Inspection</h1><p>Professional workshop inspections, built for your iPhone.</p></div>
+  </div>
   <button class="primary big" onclick="startInspection()">＋ New Inspection</button>
+  <button class="secondary big" onclick="showPastInspections()">🗂 View Past Inspections</button>
   <div class="cards">
     <div class="stat"><b id="savedCount">0</b><span>Saved inspections</span></div>
     <div class="stat"><b>iPhone</b><span>Touch friendly</span></div>
   </div>
-  <h2>Recent inspections</h2><div id="recent" class="list empty">No inspections yet.</div>
+  <div class="section-heading"><h2>Recent inspections</h2><button class="text-btn" onclick="showPastInspections()">View all</button></div>
+  <div id="recent" class="list empty">No inspections yet.</div>
+</section>
+
+<section id="past" class="screen">
+  <div class="screen-title"><button class="back-link" onclick="show('home')">← Back</button><p class="eyebrow">HISTORY</p><h1>Past inspections</h1><p class="muted">Tap an inspection to open the full saved report.</p></div>
+  <div id="pastList" class="list empty">No inspections yet.</div>
+</section>
+
+<section id="savedDetail" class="screen">
+  <div class="screen-title"><button class="back-link" onclick="showPastInspections()">← Past inspections</button><p class="eyebrow">SAVED REPORT</p><h1 id="savedTitle">Inspection</h1><p id="savedDate" class="muted"></p></div>
+  <div id="savedVehicle" class="detail-card"></div>
+  <div id="savedStats" class="summary-grid"></div>
+  <h2>Inspection results</h2>
+  <div id="savedResults" class="saved-results"></div>
+  <div id="savedOverall" class="detail-card"></div>
+  <button class="secondary big" onclick="window.print()">🖨 Print / Save PDF</button>
 </section>
 
 <section id="details" class="screen">
