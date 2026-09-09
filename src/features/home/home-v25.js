@@ -6,19 +6,27 @@
   let screenObserver=null,statusTimer=0;
 
   function ensureStyle(){
-    if(document.querySelector('link[data-uaw-home-style]'))return;
-    const l=document.createElement('link');
-    l.rel='stylesheet';
-    l.href=`styles/home-v25.css?v=${encodeURIComponent(window.WorkshopConfig?.assetVersion||'25.2')}`;
-    l.dataset.uawHomeStyle='1';
-    document.head.appendChild(l);
+    if(!document.querySelector('link[data-uaw-home-style]')){
+      const l=document.createElement('link');
+      l.rel='stylesheet';
+      l.href=`styles/home-v25.css?v=${encodeURIComponent(window.WorkshopConfig?.assetVersion||'25.6')}`;
+      l.dataset.uawHomeStyle='1';
+      document.head.appendChild(l);
+    }
+    if(!document.querySelector('link[data-uaw-home-polish]')){
+      const p=document.createElement('link');
+      p.rel='stylesheet';
+      p.href=`styles/home-polish-v25-6.css?v=${encodeURIComponent(window.WorkshopConfig?.assetVersion||'25.6')}`;
+      p.dataset.uawHomePolish='1';
+      document.head.appendChild(p);
+    }
   }
 
   function profile(){
     try{return window.WorkshopAPI?.profile?.()||window.workshopUser||JSON.parse(localStorage.getItem('workshopStaffProfile')||'null')}catch(_){return null}
   }
 
-  function goOperations(tool){location.href=`operations.html?tool=${encodeURIComponent(tool)}&v=${encodeURIComponent(window.WorkshopConfig?.assetVersion||'25.2')}`}
+  function goOperations(tool){location.href=`operations.html?tool=${encodeURIComponent(tool)}&v=${encodeURIComponent(window.WorkshopConfig?.assetVersion||'25.6')}`}
 
   function header(){
     const h=document.querySelector('body>header');
@@ -51,7 +59,7 @@
 
   function buildHero(home){
     const hero=home.querySelector('.workshop-banner');if(!hero)return;
-    hero.innerHTML=`<div class="banner-left"><img src="logo.png?v=10" class="banner-logo" alt="Ultimate Automotive Works"></div><div class="banner-copy"><p class="banner-kicker">Workshop</p><h1>Vehicle<br>Inspection</h1><p class="banner-tagline">Fast. <span>Reliable.</span> Professional.</p><p class="banner-sub">Built for your iPhone.</p></div>`;
+    hero.innerHTML=`<div class="banner-left"><img src="logo.png?v=25.6" class="banner-logo" alt="Ultimate Automotive Works"></div><div class="banner-copy"><p class="banner-kicker">Workshop</p><h1>Vehicle<br>Inspection</h1><p class="banner-tagline">Fast. <span>Reliable.</span> Professional.</p><p class="banner-sub">Built for your iPhone.</p></div>`;
   }
 
   function buildActions(home){
@@ -76,8 +84,8 @@
       dashboardCard({icon:'🚗',title:'Customers & Vehicles',copy:'Search by registration',accent:'blue',action:()=>window.showVehicles?.()}),
       dashboardCard({icon:'🧾',title:'Job Cards & Quotes',copy:'Work status & approvals',accent:'blue',action:()=>window.showJobs?.()}),
       dashboardCard({icon:'⚙️',title:'Workshop Pro',copy:'Bookings, invoices & profit',accent:'neutral',action:()=>goOperations('bookings')}),
-      dashboardCard({icon:'⭐',title:'Loyalty & Rewards',copy:'Repeat customer points',accent:'red',action:()=>goOperations('loyalty')}),
-      dashboardCard({icon:'🔔',title:'Notifications',copy:'Updates & reminders',accent:'blue',action:()=>goOperations('notifications')})
+      dashboardCard({icon:'⭐',title:'Loyalty & Rewards',copy:'Customers, points & offers',accent:'red',action:()=>goOperations('loyalty')}),
+      dashboardCard({icon:'🔔',title:'Notifications',copy:'Alerts & messages',accent:'blue',action:()=>goOperations('notifications')})
     );
     if(profile()?.role==='admin')launch.append(dashboardCard({icon:'🛡️',title:'Admin & Reliability',copy:'Users, settings & backups',accent:'purple',admin:true,action:()=>goOperations('admin')}));
   }
@@ -88,7 +96,7 @@
       footer=document.createElement('div');footer.id='uawHomeStatusV25';footer.className='uaw-home-status';
       footer.innerHTML='<span class="uaw-status-dot"></span><div class="uaw-status-copy"><b>Online • synced</b><small>All systems operational</small></div><div class="uaw-status-brand">Powered by<b>Ultimate Automotive Works</b></div>';
       home.appendChild(footer);
-      const version=document.createElement('div');version.className='uaw-home-version';version.textContent=`Version ${window.WorkshopConfig?.version||'25.2.0'}`;home.appendChild(version);
+      const version=document.createElement('div');version.className='uaw-home-version';version.textContent=`Version ${window.WorkshopConfig?.version||'25.6.0'}`;home.appendChild(version);
     }
     updateStatus();
   }
