@@ -9,7 +9,7 @@
     'customer-notify-v20.js',
     'notification-context-v21.js',
     'monitor-v20.js',
-    'loyalty-guard-v22.js',
+    'src/features/loyalty/guard-v25.js',
     'repair-data-v23.js'
   ];
   const pageFeatures={
