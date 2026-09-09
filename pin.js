@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='25';
+  const VERSION='25.1';
   const loaded=new Map();
 
   function asset(path){return `${path}?v=${VERSION}`}
@@ -21,11 +21,12 @@
 
   async function boot(){
     loadStyle('styles/theme-v25.css');
+    loadStyle('styles/visual-polish-v25.css');
     await loadScript('src/core/config-v25.js');
     await loadScript('src/core/api-v25.js');
     await loadScript('src/core/auth-v25.js');
     await loadScript('src/core/features-v25.js');
-    document.documentElement.dataset.workshopVersion=window.WorkshopConfig?.version||'25';
+    document.documentElement.dataset.workshopVersion=window.WorkshopConfig?.version||'25.1';
   }
 
   boot().catch(error=>{
