@@ -94,3 +94,11 @@
   s.dataset.progressV16='1';
   document.head.appendChild(s);
 })();
+
+(()=>{
+  if(document.querySelector('script[data-quote-revision-v18]'))return;
+  const s=document.createElement('script');
+  s.src='quote-revision-v18.js?v=18';
+  s.dataset.quoteRevisionV18='1';
+  document.head.appendChild(s);
+})();
