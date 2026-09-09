@@ -1,0 +1,33 @@
+:root{
+  --uaw-bg:#070b12;
+  --uaw-surface:#101722;
+  --uaw-surface-2:#0b111a;
+  --uaw-surface-3:#0b1220;
+  --uaw-border:#273244;
+  --uaw-border-strong:#334155;
+  --uaw-text:#f8fafc;
+  --uaw-muted:#94a3b8;
+  --uaw-red:#ef2b2d;
+  --uaw-red-dark:#b81419;
+  --uaw-green:#22c55e;
+  --uaw-amber:#f59e0b;
+  --uaw-blue:#3b82f6;
+  --uaw-purple:#8b5cf6;
+  --uaw-radius-sm:10px;
+  --uaw-radius-md:14px;
+  --uaw-radius-lg:18px;
+  --uaw-radius-xl:24px;
+  --uaw-space-1:4px;
+  --uaw-space-2:8px;
+  --uaw-space-3:12px;
+  --uaw-space-4:16px;
+  --uaw-space-5:20px;
+  --uaw-space-6:24px;
+  --uaw-shadow:0 12px 36px rgba(0,0,0,.28);
+  --uaw-content-mobile:760px;
+  --uaw-content-desktop:1440px;
+}
+
+/* v25 design tokens intentionally mirror the current visual system.
+   New components should consume these variables instead of hard-coded values. */
+body{background-color:var(--uaw-bg);color:var(--uaw-text)}
