@@ -102,3 +102,19 @@
   s.dataset.quoteRevisionV18='1';
   document.head.appendChild(s);
 })();
+
+(()=>{
+  if(!document.querySelector('link[data-desktop-v19]')){
+    const l=document.createElement('link');
+    l.rel='stylesheet';
+    l.href='desktop-v19.css?v=19';
+    l.dataset.desktopV19='1';
+    document.head.appendChild(l);
+  }
+  if(!document.querySelector('script[data-device-layout-v19]')){
+    const s=document.createElement('script');
+    s.src='device-layout-v19.js?v=19';
+    s.dataset.deviceLayoutV19='1';
+    document.head.appendChild(s);
+  }
+})();
