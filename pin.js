@@ -1,15 +1,29 @@
 (()=>{
   const BASE="https://rvkutsfyglopbhrnbotx.supabase.co/functions/v1/";
-  const AUTH=BASE+"workshop-auth";
+  const GATEWAY=BASE+"workshop-gateway";
+  const AUTH=GATEWAY+"?service=auth";
   const TOKEN_KEY="workshopPinSession";
   const PROFILE_KEY="workshopStaffProfile";
   const nativeFetch=window.fetch.bind(window);
+  const SERVICE_MAP={
+    "workshop-auth":"auth",
+    "workshop-admin":"admin",
+    "workshop-pro":"pro",
+    "workshop-inspections":"inspections",
+    "workshop-restore":"restore"
+  };
 
   function gate(){return document.getElementById("pinGate")}
   function messageEl(){return document.getElementById("pinMessage")}
   function token(){return localStorage.getItem(TOKEN_KEY)||""}
   function setProfile(user){window.workshopUser=user||null;if(user)localStorage.setItem(PROFILE_KEY,JSON.stringify(user));else localStorage.removeItem(PROFILE_KEY);document.dispatchEvent(new CustomEvent("workshop-user-ready",{detail:user||null}))}
   function getProfile(){try{return JSON.parse(localStorage.getItem(PROFILE_KEY)||"null")}catch(_){return null}}
+  function routeWorkshopUrl(url){
+    if(!url.startsWith(BASE)||url.startsWith(GATEWAY))return url;
+    const functionName=url.slice(BASE.length).split(/[?#]/)[0];
+    const service=SERVICE_MAP[functionName];
+    return service?`${GATEWAY}?service=${service}`:url;
+  }
   window.workshopUser=getProfile();
 
   function ensureUserSelect(){
@@ -28,11 +42,12 @@
   window.fetch=async function(input,init={}){
     const url=typeof input==="string"?input:(input&&input.url)||"";
     if(url.startsWith(BASE)){
+      const routedUrl=routeWorkshopUrl(url);
       const headers=new Headers(init.headers||(input instanceof Request?input.headers:undefined));
       let action="";try{if(typeof init.body==="string")action=JSON.parse(init.body)?.action||""}catch(_){}
-      const isLogin=url===AUTH&&action==="login";
+      const isLogin=routedUrl===AUTH&&action==="login";
       const t=token();if(t&&!isLogin)headers.set("x-workshop-token",t);
-      const response=await nativeFetch(input,{...init,headers});
+      const response=await nativeFetch(routedUrl,{...init,headers});
       if(response.status===401&&!isLogin){clearSession();showGate("Your workshop session has expired.")}
       return response;
     }
