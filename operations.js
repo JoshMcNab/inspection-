@@ -1,0 +1,193 @@
+(()=>{
+const ENDPOINT="https://rvkutsfyglopbhrnbotx.supabase.co/functions/v1/workshop-pro";
+const TOKEN_KEY="workshopPinSession";
+let db={customers:[],vehicles:[],jobs:[],quotes:[],quote_items:[],invoices:[],invoice_items:[],service_packages:[],service_package_items:[],bookings:[],checkins:[],warranties:[],documents:[]};
+const qs=new URLSearchParams(location.search);
+let selectedJob=qs.get("job")||"";
+let selectedVehicle=qs.get("vehicle")||"";
+let activeTool=qs.get("tool")||"bookings";
+let editingBooking=null,editingPackage=null,editingWarranty=null;
+let packageDraft=null,invoiceDraft=[];
+let scannerCallback=null,scannerStream=null,scannerTimer=null;
+let lastBarcode="";
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+const money=n=>`£${Number(n||0).toFixed(2)}`;
+const fmtDate=v=>v?new Date(v.length===10?`${v}T12:00:00`:v).toLocaleDateString("en-GB"):"—";
+const fmtDateTime=v=>v?new Date(v).toLocaleString("en-GB"):"—";
+const localDT=v=>{if(!v)return"";const d=new Date(v),p=n=>String(n).padStart(2,"0");return`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`};
+const customer=id=>db.customers.find(x=>x.id===id)||{};
+const vehicle=id=>db.vehicles.find(x=>x.id===id)||{};
+const job=id=>db.jobs.find(x=>x.id===id)||{};
+const invoiceForJob=id=>db.invoices.find(x=>x.job_id===id);
+
+async function api(action,payload={}){
+  const token=localStorage.getItem(TOKEN_KEY)||"";
+  const r=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json","x-workshop-token":token},body:JSON.stringify({action,...payload})});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok){if(r.status===401)location.href="index.html?v=13";throw new Error(data.error||`Request failed (${r.status})`)}
+  return data;
+}
+async function refresh(){
+  db=await api("bootstrap");
+  if(selectedJob&&!db.jobs.some(x=>x.id===selectedJob))selectedJob="";
+  if(selectedVehicle&&!db.vehicles.some(x=>x.id===selectedVehicle))selectedVehicle="";
+  if(selectedJob&&!selectedVehicle)selectedVehicle=job(selectedJob).vehicle_id||"";
+  updateContext();
+}
+function updateContext(){
+  let text="Bookings, invoices, profit, service packages and customer records.";
+  if(selectedJob){const j=job(selectedJob),v=vehicle(j.vehicle_id);text=`Job #${j.job_number||""} · ${v.registration||"Vehicle"} · ${v.make_model||""}`}
+  else if(selectedVehicle){const v=vehicle(selectedVehicle);text=`${v.registration||"Vehicle"} · ${v.make_model||""}`}
+  $("opsContext").textContent=text;
+}
+function vehicleOptions(value="",allowBlank=false){return`${allowBlank?'<option value="">No vehicle / choose later</option>':""}${db.vehicles.map(v=>`<option value="${v.id}" ${v.id===value?"selected":""}>${esc(v.registration)} · ${esc(v.make_model||"Vehicle")}</option>`).join("")}`}
+function jobOptions(value="",allowBlank=false){return`${allowBlank?'<option value="">Select job</option>':""}${db.jobs.map(j=>{const v=vehicle(j.vehicle_id);return`<option value="${j.id}" ${j.id===value?"selected":""}>Job #${j.job_number} · ${esc(v.registration||"Vehicle")} · ${esc(j.status)}</option>`}).join("")}`}
+function customerLabel(v){const c=customer(v.customer_id);return c.name?` · ${esc(c.name)}`:""}
+function setActiveNav(name){document.querySelectorAll("#opsNav button").forEach(b=>b.classList.toggle("active",b.dataset.tool===name))}
+function heading(title,copy){return`<div class="screen-title"><p class="eyebrow">WORKSHOP PRO</p><h1>${esc(title)}</h1><p class="muted">${esc(copy)}</p></div>`}
+function showTool(name){
+  activeTool=name;setActiveNav(name);
+  const url=new URL(location.href);url.searchParams.set("tool",name);if(selectedJob)url.searchParams.set("job",selectedJob);if(selectedVehicle)url.searchParams.set("vehicle",selectedVehicle);history.replaceState(null,"",url);
+  const map={bookings:renderBookings,invoices:renderInvoices,packages:renderPackages,checkin:renderCheckin,warranty:renderWarranty,mot:renderMot,portal:renderPortal,barcode:renderBarcode,documents:renderDocuments};
+  (map[name]||renderBookings)();
+}
+window.showTool=showTool;
+
+function bookingRows(){
+  const now=new Date(),limit=new Date(now.getTime()+60*86400000);
+  const rows=db.bookings.filter(b=>new Date(b.start_at)>=new Date(now.getTime()-86400000)&&new Date(b.start_at)<=limit).sort((a,b)=>new Date(a.start_at)-new Date(b.start_at));
+  if(!rows.length)return`<div class="ops-empty">No upcoming bookings.</div>`;
+  const groups={};rows.forEach(b=>{const key=new Date(b.start_at).toISOString().slice(0,10);(groups[key]??=[]).push(b)});
+  return Object.entries(groups).map(([day,items])=>`<div class="diary-day"><h3>${new Date(`${day}T12:00:00`).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})}</h3>${items.map(b=>{const v=vehicle(b.vehicle_id);return`<button class="booking-row" onclick="editBooking('${b.id}')"><div><time>${new Date(b.start_at).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</time><b>${esc(b.title)}</b><small>${esc(v.registration||"No vehicle")}${v.make_model?` · ${esc(v.make_model)}`:""}${customerLabel(v)}</small></div><span class="booking-status ops-pill ${b.status==="Cancelled"?"red":b.status==="Completed"?"green":"amber"}">${esc(b.status)}</span></button>`}).join("")}</div>`).join("");
+}
+function renderBookings(){
+  const b=editingBooking||{},defaultStart=localDT(new Date(Date.now()+3600000).toISOString());
+  $("opsView").innerHTML=heading("Booking diary","Plan workshop jobs and see the next 60 days.")+
+  `<div class="ops-card"><h2>${b.id?"Edit booking":"New booking"}</h2><div class="ops-grid"><label>Vehicle<select id="bkVehicle">${vehicleOptions(b.vehicle_id||selectedVehicle,true)}</select></label><label>Status<select id="bkStatus">${["Booked","Arrived","In Progress","Completed","Cancelled"].map(x=>`<option ${x===(b.status||"Booked")?"selected":""}>${x}</option>`).join("")}</select></label></div><label>Booking title<input id="bkTitle" value="${esc(b.title||"")}" placeholder="Service, MOT prep, diagnostics…"></label><div class="ops-grid"><label>Starts<input id="bkStart" type="datetime-local" value="${esc(localDT(b.start_at)||defaultStart)}"></label><label>Ends<input id="bkEnd" type="datetime-local" value="${esc(localDT(b.end_at)||"")}"></label></div><label>Notes<textarea id="bkNotes" placeholder="Customer request, drop-off details…">${esc(b.notes||"")}</textarea></label><div class="ops-actions"><button class="primary" onclick="saveBooking()">✓ Save booking</button>${b.id?`<button class="secondary" onclick="cancelBookingEdit()">Cancel edit</button><button class="danger-mini" onclick="deleteBooking('${b.id}')">Delete</button>`:""}</div></div><h2>Upcoming</h2>${bookingRows()}`;
+}
+function editBooking(id){editingBooking=db.bookings.find(x=>x.id===id)||null;renderBookings()}window.editBooking=editBooking;
+function cancelBookingEdit(){editingBooking=null;renderBookings()}window.cancelBookingEdit=cancelBookingEdit;
+async function saveBooking(){try{const v=$("bkVehicle").value;await api("save_booking",{booking:{id:editingBooking?.id||null,vehicle_id:v||null,customer_id:v?vehicle(v).customer_id||null:null,start_at:new Date($("bkStart").value).toISOString(),end_at:$("bkEnd").value?new Date($("bkEnd").value).toISOString():null,title:$("bkTitle").value,status:$("bkStatus").value,notes:$("bkNotes").value}});editingBooking=null;await refresh();renderBookings()}catch(e){alert(e.message)}}window.saveBooking=saveBooking;
+async function deleteBooking(id){if(!confirm("Delete this booking?"))return;try{await api("delete_booking",{id});editingBooking=null;await refresh();renderBookings()}catch(e){alert(e.message)}}window.deleteBooking=deleteBooking;
+
+function invoiceTotals(inv,items){
+  const net=items.reduce((s,x)=>s+Number(x.quantity||0)*Number(x.unit_price||0)+Number(x.labour_hours||0)*Number(x.labour_rate||0),0);
+  const cost=items.reduce((s,x)=>s+Number(x.quantity||0)*Number(x.cost_price||0),0);
+  const vat=net*Number(inv?.vat_rate||0)/100,total=net+vat,profit=net-cost,paid=Number(inv?.amount_paid||0),outstanding=Math.max(0,total-paid);
+  return{net,cost,vat,total,profit,paid,outstanding};
+}
+function renderInvoiceTotalsOnly(){
+  const box=$("invoiceTotals");if(!box)return;const inv=invoiceForJob(selectedJob)||{},t=invoiceTotals({...inv,vat_rate:Number($("invVat")?.value||inv.vat_rate||20),amount_paid:Number($("invPaid")?.value||inv.amount_paid||0)},invoiceDraft);
+  box.innerHTML=`<h3>Invoice & job profit</h3><div class="ops-total"><span>Sales ex VAT</span><b>${money(t.net)}</b><span>Parts cost</span><b>${money(t.cost)}</b><span>Gross profit</span><b class="${t.profit>=0?"profit-positive":"profit-negative"}">${money(t.profit)}</b><span>VAT</span><b>${money(t.vat)}</b><strong>Invoice total</strong><strong>${money(t.total)}</strong><span>Paid</span><b>${money(t.paid)}</b><span>Outstanding</span><b>${money(t.outstanding)}</b></div>`;
+}
+function updateInvoiceItem(index,field,value){invoiceDraft[index][field]=["description","item_type","part_number","supplier","barcode"].includes(field)?value:Number(value||0);renderInvoiceTotalsOnly()}window.updateInvoiceItem=updateInvoiceItem;
+function renderInvoices(){
+  if(!selectedJob&&db.jobs[0])selectedJob=db.jobs[0].id;
+  const inv=selectedJob?invoiceForJob(selectedJob):null;
+  if(inv){const dbItems=db.invoice_items.filter(x=>x.invoice_id===inv.id);if(!invoiceDraft.length||invoiceDraft[0]?.invoice_id!==inv.id)invoiceDraft=dbItems.map(x=>({...x}))}else invoiceDraft=[];
+  const j=job(selectedJob),v=vehicle(j.vehicle_id);
+  $("opsView").innerHTML=heading("Invoices & profit","Convert a job quote into an invoice and track real parts cost versus sale price.")+
+  `<div class="ops-card"><label>Job<select id="invJob" onchange="changeInvoiceJob(this.value)">${jobOptions(selectedJob,true)}</select></label>${selectedJob?`<p class="ops-note">${esc(v.registration||"Vehicle")} · ${esc(v.make_model||"")} · ${esc(j.status||"")}</p>`:""}</div>`+
+  (!selectedJob?`<div class="ops-empty">Create or select a job first.</div>`:!inv?`<div class="ops-card"><h2>No invoice yet</h2><p>Create an invoice from the current job quote. You can then enter your actual parts cost to see the job profit.</p><button class="primary big" onclick="createInvoice()">Create invoice from quote</button></div>`:
+  `<div class="ops-card"><div class="section-heading"><h2>Invoice #${inv.invoice_number}</h2><span class="ops-pill ${inv.status==="paid"?"green":inv.status==="part-paid"?"amber":""}">${esc(inv.status.toUpperCase())}</span></div><div class="ops-grid three"><label>Status<select id="invStatus">${["draft","sent","part-paid","paid","void"].map(x=>`<option ${x===inv.status?"selected":""}>${x}</option>`).join("")}</select></label><label>VAT %<input id="invVat" type="number" step="0.01" value="${Number(inv.vat_rate||20)}" oninput="renderInvoiceTotalsOnly()"></label><label>Amount paid £<input id="invPaid" type="number" step="0.01" value="${Number(inv.amount_paid||0)}" oninput="renderInvoiceTotalsOnly()"></label></div><div class="ops-grid"><label>Due date<input id="invDue" type="date" value="${esc(inv.due_date||"")}"></label><label>Invoice notes<input id="invNotes" value="${esc(inv.notes||"")}"></label></div></div>
+  <h2>Invoice items</h2><div id="invoiceItems">${invoiceDraft.map((x,i)=>`<div class="item-editor"><div class="item-editor-head"><b>Item ${i+1}</b><button class="mini-btn" type="button" onclick="scanInvoiceBarcode(${i})">▥ Scan</button></div><label>Description<input value="${esc(x.description||"")}" oninput="updateInvoiceItem(${i},'description',this.value)"></label><div class="item-editor-grid"><label>Type<select onchange="updateInvoiceItem(${i},'item_type',this.value)"><option value="part" ${x.item_type==="part"?"selected":""}>Part</option><option value="labour" ${x.item_type==="labour"?"selected":""}>Labour</option><option value="other" ${x.item_type==="other"?"selected":""}>Other</option></select></label><label>Qty<input type="number" step="0.01" value="${Number(x.quantity||0)}" oninput="updateInvoiceItem(${i},'quantity',this.value)"></label><label>Sell £ each<input type="number" step="0.01" value="${Number(x.unit_price||0)}" oninput="updateInvoiceItem(${i},'unit_price',this.value)"></label><label>Actual cost £ each<input type="number" step="0.01" value="${Number(x.cost_price||0)}" oninput="updateInvoiceItem(${i},'cost_price',this.value)"></label><label>Labour hrs<input type="number" step="0.1" value="${Number(x.labour_hours||0)}" oninput="updateInvoiceItem(${i},'labour_hours',this.value)"></label><label>Labour £/hr<input type="number" step="0.01" value="${Number(x.labour_rate||0)}" oninput="updateInvoiceItem(${i},'labour_rate',this.value)"></label><label>Part number<input value="${esc(x.part_number||"")}" oninput="updateInvoiceItem(${i},'part_number',this.value)"></label><label>Supplier<input value="${esc(x.supplier||"")}" oninput="updateInvoiceItem(${i},'supplier',this.value)"></label><label>Barcode<input value="${esc(x.barcode||"")}" oninput="updateInvoiceItem(${i},'barcode',this.value)"></label></div></div>`).join("")}</div><div class="ops-actions"><button class="secondary" onclick="addInvoiceItem()">＋ Add invoice item</button><button class="primary" onclick="saveInvoice()">✓ Save invoice & costs</button><button class="secondary" onclick="window.print()">🖨 Print</button></div><div id="invoiceTotals" class="ops-card"></div>`);
+  renderInvoiceTotalsOnly();
+}
+function changeInvoiceJob(id){selectedJob=id;selectedVehicle=id?job(id).vehicle_id||"":selectedVehicle;invoiceDraft=[];updateContext();renderInvoices()}window.changeInvoiceJob=changeInvoiceJob;
+async function createInvoice(){try{await api("create_invoice",{job_id:selectedJob});await refresh();invoiceDraft=[];renderInvoices()}catch(e){alert(e.message)}}window.createInvoice=createInvoice;
+async function addInvoiceItem(){const inv=invoiceForJob(selectedJob);if(!inv)return;try{await api("add_invoice_item",{invoice_id:inv.id,item:{description:"Part / labour",item_type:"part",quantity:1}});await refresh();invoiceDraft=[];renderInvoices()}catch(e){alert(e.message)}}window.addInvoiceItem=addInvoiceItem;
+async function saveInvoice(){const inv=invoiceForJob(selectedJob);if(!inv)return;try{await api("save_invoice",{invoice:{id:inv.id,status:$("invStatus").value,vat_rate:$("invVat").value,amount_paid:$("invPaid").value,due_date:$("invDue").value,notes:$("invNotes").value},items:invoiceDraft});await refresh();invoiceDraft=[];renderInvoices();alert("Invoice and job costs saved.")}catch(e){alert(e.message)}}window.saveInvoice=saveInvoice;
+function scanInvoiceBarcode(i){openScanner(code=>{invoiceDraft[i].barcode=code;renderInvoices()})}window.scanInvoiceBarcode=scanInvoiceBarcode;
+
+function blankPackage(){return{id:null,name:"",description:"",labour_rate:65,vat_rate:20,active:true,items:[{description:"",item_type:"part",quantity:1,sell_price:0,cost_price:0,labour_hours:0,part_number:"",supplier:"",barcode:""}]}}
+function editPackage(id){const p=db.service_packages.find(x=>x.id===id);if(!p)return;packageDraft={...p,items:db.service_package_items.filter(x=>x.package_id===id).map(x=>({...x}))};editingPackage=id;renderPackages()}window.editPackage=editPackage;
+function newPackage(){packageDraft=blankPackage();editingPackage="new";renderPackages()}window.newPackage=newPackage;
+function cancelPackage(){packageDraft=null;editingPackage=null;renderPackages()}window.cancelPackage=cancelPackage;
+function addPackageItem(){packageDraft.items.push({description:"",item_type:"part",quantity:1,sell_price:0,cost_price:0,labour_hours:0,part_number:"",supplier:"",barcode:""});renderPackages()}window.addPackageItem=addPackageItem;
+function updatePackageItem(i,f,v){packageDraft.items[i][f]=["description","item_type","part_number","supplier","barcode"].includes(f)?v:Number(v||0)}window.updatePackageItem=updatePackageItem;
+function removePackageItem(i){packageDraft.items.splice(i,1);renderPackages()}window.removePackageItem=removePackageItem;
+function scanPackageBarcode(i){openScanner(code=>{packageDraft.items[i].barcode=code;renderPackages()})}window.scanPackageBarcode=scanPackageBarcode;
+async function savePackage(){try{const p={id:packageDraft.id,name:$("pkgName").value,description:$("pkgDesc").value,labour_rate:$("pkgRate").value,vat_rate:$("pkgVat").value,active:true};await api("save_package",{package:p,items:packageDraft.items});packageDraft=null;editingPackage=null;await refresh();renderPackages()}catch(e){alert(e.message)}}window.savePackage=savePackage;
+async function applyPackage(id){if(!selectedJob){alert("Select a job first.");return}try{const r=await api("apply_package",{package_id:id,job_id:selectedJob});alert(`${r.added} package lines added to the job quote.`);await refresh()}catch(e){alert(e.message)}}window.applyPackage=applyPackage;
+function renderPackages(){
+  if(!selectedJob&&db.jobs[0])selectedJob=db.jobs[0].id;
+  let editor="";
+  if(packageDraft){editor=`<div class="ops-card"><h2>${packageDraft.id?"Edit":"New"} service package</h2><div class="ops-grid"><label>Name<input id="pkgName" value="${esc(packageDraft.name||"")}"></label><label>Description<input id="pkgDesc" value="${esc(packageDraft.description||"")}"></label><label>Labour rate £/hr<input id="pkgRate" type="number" step="0.01" value="${Number(packageDraft.labour_rate||65)}"></label><label>VAT %<input id="pkgVat" type="number" step="0.01" value="${Number(packageDraft.vat_rate||20)}"></label></div><h3>Package items</h3>${packageDraft.items.map((x,i)=>`<div class="item-editor"><div class="item-editor-head"><b>Item ${i+1}</b><div><button class="mini-btn" onclick="scanPackageBarcode(${i})">▥ Scan</button> <button class="danger-mini" onclick="removePackageItem(${i})">Remove</button></div></div><label>Description<input value="${esc(x.description||"")}" oninput="updatePackageItem(${i},'description',this.value)"></label><div class="item-editor-grid"><label>Type<select onchange="updatePackageItem(${i},'item_type',this.value)"><option value="part" ${x.item_type==="part"?"selected":""}>Part</option><option value="labour" ${x.item_type==="labour"?"selected":""}>Labour</option></select></label><label>Qty<input type="number" step="0.01" value="${Number(x.quantity||0)}" oninput="updatePackageItem(${i},'quantity',this.value)"></label><label>Sell £ each<input type="number" step="0.01" value="${Number(x.sell_price||0)}" oninput="updatePackageItem(${i},'sell_price',this.value)"></label><label>Cost £ each<input type="number" step="0.01" value="${Number(x.cost_price||0)}" oninput="updatePackageItem(${i},'cost_price',this.value)"></label><label>Labour hrs<input type="number" step="0.1" value="${Number(x.labour_hours||0)}" oninput="updatePackageItem(${i},'labour_hours',this.value)"></label><label>Part number<input value="${esc(x.part_number||"")}" oninput="updatePackageItem(${i},'part_number',this.value)"></label><label>Supplier<input value="${esc(x.supplier||"")}" oninput="updatePackageItem(${i},'supplier',this.value)"></label><label>Barcode<input value="${esc(x.barcode||"")}" oninput="updatePackageItem(${i},'barcode',this.value)"></label></div></div>`).join("")}<div class="ops-actions"><button class="secondary" onclick="addPackageItem()">＋ Item</button><button class="primary" onclick="savePackage()">✓ Save package</button><button class="secondary" onclick="cancelPackage()">Cancel</button></div></div>`}
+  $("opsView").innerHTML=heading("Service packages","Build repeatable jobs once, then add all parts and labour to a quote in one tap.")+
+  `<div class="ops-card"><div class="ops-grid"><label>Apply package to job<select onchange="selectedJob=this.value;selectedVehicle=job(this.value).vehicle_id||'';updateContext()">${jobOptions(selectedJob,true)}</select></label><div class="ops-actions"><button class="primary" onclick="newPackage()">＋ New package</button></div></div></div>${editor}<div class="ops-card"><h2>Saved packages</h2>${db.service_packages.map(p=>{const items=db.service_package_items.filter(x=>x.package_id===p.id),parts=items.reduce((s,x)=>s+Number(x.quantity||0)*Number(x.sell_price||0),0),hours=items.reduce((s,x)=>s+Number(x.labour_hours||0),0);return`<div class="ops-row"><div><b>${esc(p.name)}</b><span>${esc(p.description||"")}</span><small>${items.length} lines · ${money(parts)} parts · ${hours.toFixed(1)} labour hrs</small></div><div class="ops-actions"><button class="mini-btn" onclick="editPackage('${p.id}')">Edit</button><button class="primary small" onclick="applyPackage('${p.id}')">Add to quote</button></div></div>`}).join("")||"No packages yet."}</div>`;
+}
+
+let sigCtx=null,sigCanvas=null,sigDrawing=false;
+function initSignature(existing=""){sigCanvas=$("checkinSig");if(!sigCanvas)return;sigCanvas.width=sigCanvas.clientWidth*2;sigCanvas.height=sigCanvas.clientHeight*2;sigCtx=sigCanvas.getContext("2d");sigCtx.setTransform(2,0,0,2,0,0);sigCtx.lineWidth=2;sigCtx.lineCap="round";if(existing){const img=new Image();img.onload=()=>sigCtx.drawImage(img,0,0,sigCanvas.clientWidth,sigCanvas.clientHeight);img.src=existing}const pos=e=>{const r=sigCanvas.getBoundingClientRect(),p=e.touches?e.touches[0]:e;return{x:p.clientX-r.left,y:p.clientY-r.top}};const down=e=>{sigDrawing=true;const p=pos(e);sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);e.preventDefault()};const move=e=>{if(!sigDrawing)return;const p=pos(e);sigCtx.lineTo(p.x,p.y);sigCtx.stroke();e.preventDefault()};sigCanvas.onmousedown=down;sigCanvas.onmousemove=move;sigCanvas.ontouchstart=down;sigCanvas.ontouchmove=move;window.onmouseup=()=>sigDrawing=false;sigCanvas.ontouchend=()=>sigDrawing=false}
+function clearCheckinSig(){sigCtx?.clearRect(0,0,sigCanvas.width,sigCanvas.height)}window.clearCheckinSig=clearCheckinSig;
+function renderCheckin(){
+  if(!selectedJob&&db.jobs[0])selectedJob=db.jobs[0].id;const j=job(selectedJob),v=vehicle(j.vehicle_id),c=db.checkins.find(x=>x.job_id===selectedJob)||{};
+  $("opsView").innerHTML=heading("Vehicle check-in","Record the vehicle condition, mileage, fuel and keys when it arrives.")+
+  `<div class="ops-card"><label>Job<select onchange="selectedJob=this.value;selectedVehicle=job(this.value).vehicle_id||'';updateContext();renderCheckin()">${jobOptions(selectedJob,true)}</select></label></div>${!selectedJob?'<div class="ops-empty">Select a job.</div>':`<div class="ops-card"><h2>Job #${j.job_number} · ${esc(v.registration||"Vehicle")}</h2><div class="ops-grid three"><label>Mileage<input id="ciMileage" inputmode="numeric" value="${esc(c.mileage??v.mileage??"")}"></label><label>Fuel level<select id="ciFuel">${["","Empty","1/4","1/2","3/4","Full"].map(x=>`<option ${x===(c.fuel_level||"")?"selected":""}>${x||"Select"}</option>`).join("")}</select></label><label>Keys received<input id="ciKeys" value="${esc(c.keys_received||"1 key")}"></label></div><label>Existing damage / check-in notes<textarea id="ciDamage" placeholder="Scratches, dents, warning lights, belongings…">${esc(c.damage_notes||"")}</textarea></label><div class="signature-box"><p>Customer check-in signature</p><canvas id="checkinSig" class="sig-pad"></canvas><button class="secondary small" onclick="clearCheckinSig()">Clear</button></div><div class="ops-actions"><button class="primary" onclick="saveCheckin()">✓ Save check-in</button><button class="secondary" onclick="selectedVehicle='${v.id}';showTool('documents')">📎 Add damage photos / documents</button></div>${c.checked_in_at?`<p class="ops-note">Checked in: ${fmtDateTime(c.checked_in_at)}</p>`:""}</div>`}`;setTimeout(()=>initSignature(c.customer_signature||""),0);
+}
+async function saveCheckin(){if(!selectedJob)return;let signature="";try{signature=sigCanvas.toDataURL("image/png")}catch(_){ }try{await api("save_checkin",{checkin:{job_id:selectedJob,mileage:$("ciMileage").value,fuel_level:$("ciFuel").value,keys_received:$("ciKeys").value,damage_notes:$("ciDamage").value,customer_signature:signature}});await refresh();renderCheckin();alert("Vehicle check-in saved.")}catch(e){alert(e.message)}}window.saveCheckin=saveCheckin;
+
+function newWarranty(){editingWarranty={id:null,vehicle_id:selectedVehicle||vehicle(job(selectedJob).vehicle_id).id||"",job_id:selectedJob||"",description:"",part_number:"",supplier:"",starts_on:new Date().toISOString().slice(0,10),expires_on:"",mileage_limit:"",notes:"",status:"active"};renderWarranty()}window.newWarranty=newWarranty;
+function editWarranty(id){editingWarranty={...db.warranties.find(x=>x.id===id)};selectedVehicle=editingWarranty.vehicle_id;renderWarranty()}window.editWarranty=editWarranty;
+async function saveWarranty(){const w={...editingWarranty,vehicle_id:$("wVehicle").value,job_id:$("wJob").value||null,description:$("wDesc").value,part_number:$("wPart").value,supplier:$("wSupplier").value,starts_on:$("wStart").value,expires_on:$("wExpiry").value,mileage_limit:$("wMileage").value,notes:$("wNotes").value,status:$("wStatus").value};try{await api("save_warranty",{warranty:w});editingWarranty=null;selectedVehicle=w.vehicle_id;await refresh();renderWarranty()}catch(e){alert(e.message)}}window.saveWarranty=saveWarranty;
+function renderWarranty(){
+  if(!selectedVehicle){if(selectedJob)selectedVehicle=job(selectedJob).vehicle_id||"";else selectedVehicle=db.vehicles[0]?.id||""}
+  const rows=db.warranties.filter(x=>x.vehicle_id===selectedVehicle);const edit=editingWarranty;
+  $("opsView").innerHTML=heading("Warranty tracker","Keep fitted parts and repair warranties against the vehicle and job.")+
+  `<div class="ops-card"><div class="ops-grid"><label>Vehicle<select onchange="selectedVehicle=this.value;editingWarranty=null;updateContext();renderWarranty()">${vehicleOptions(selectedVehicle,true)}</select></label><div class="ops-actions"><button class="primary" onclick="newWarranty()">＋ Add warranty</button></div></div></div>`+
+  (edit?`<div class="ops-card"><h2>${edit.id?"Edit":"New"} warranty</h2><div class="ops-grid"><label>Vehicle<select id="wVehicle">${vehicleOptions(edit.vehicle_id||selectedVehicle)}</select></label><label>Related job<select id="wJob">${jobOptions(edit.job_id||"",true)}</select></label></div><label>Warranty / fitted part<input id="wDesc" value="${esc(edit.description||"")}" placeholder="e.g. Front brake discs & pads"></label><div class="ops-grid three"><label>Part number<input id="wPart" value="${esc(edit.part_number||"")}"></label><label>Supplier<input id="wSupplier" value="${esc(edit.supplier||"")}"></label><label>Status<select id="wStatus">${["active","expired","claimed","void"].map(x=>`<option ${x===edit.status?"selected":""}>${x}</option>`).join("")}</select></label><label>Starts<input id="wStart" type="date" value="${esc(edit.starts_on||"")}"></label><label>Expires<input id="wExpiry" type="date" value="${esc(edit.expires_on||"")}"></label><label>Mileage limit<input id="wMileage" inputmode="numeric" value="${esc(edit.mileage_limit||"")}"></label></div><label>Notes<textarea id="wNotes">${esc(edit.notes||"")}</textarea></label><div class="ops-actions"><button class="primary" onclick="saveWarranty()">✓ Save warranty</button><button class="secondary" onclick="editingWarranty=null;renderWarranty()">Cancel</button></div></div>`:"")+
+  `<div class="ops-card"><h2>Vehicle warranties</h2>${rows.map(w=>`<div class="ops-row"><div><b>${esc(w.description)}</b><span>${esc(w.supplier||"")}${w.part_number?` · ${esc(w.part_number)}`:""}</span><small>${fmtDate(w.starts_on)} → ${fmtDate(w.expires_on)}${w.mileage_limit?` · up to ${Number(w.mileage_limit).toLocaleString()} miles`:""}</small></div><div><span class="ops-pill ${w.status==="active"?"green":w.status==="expired"?"red":"amber"}">${esc(w.status)}</span><button class="mini-btn" onclick="editWarranty('${w.id}')">Edit</button></div></div>`).join("")||"No warranties recorded."}</div>`;
+}
+
+function renderMot(){
+  if(!selectedVehicle)selectedVehicle=db.vehicles[0]?.id||"";const v=vehicle(selectedVehicle);
+  $("opsView").innerHTML=heading("MOT lookup","Use the registration to check current MOT information and update the vehicle record.")+
+  `<div class="ops-card"><label>Vehicle<select onchange="selectedVehicle=this.value;updateContext();renderMot()">${vehicleOptions(selectedVehicle,true)}</select></label><label>Registration<input id="motReg" value="${esc(v.registration||"")}" autocapitalize="characters"></label><button class="primary big" onclick="motLookup()">Check MOT / DVLA</button><p class="ops-note">The live in-app lookup uses the official DVLA Vehicle Enquiry API. If the workshop API key has not been connected yet, this screen links straight to the official GOV.UK MOT checker.</p></div><div id="motResult"></div>`;
+}
+async function motLookup(){const out=$("motResult");out.innerHTML=`<div class="ops-loading">Checking…</div>`;try{const r=await api("mot_lookup",{registration:$("motReg").value});if(!r.configured){out.innerHTML=`<div class="ops-card"><h2>Official lookup ready</h2><p>The workshop does not have a DVLA API key connected yet, so automatic MOT expiry import is waiting for that credential.</p><button class="primary big" onclick="window.open('${esc(r.gov_url)}','_blank')">Open GOV.UK MOT checker</button></div>`;return}const d=r.data||{};out.innerHTML=`<div class="ops-card"><h2>${esc(r.registration)}</h2><div class="mot-result-grid"><div><span>Make</span><b>${esc(d.make||"—")}</b></div><div><span>Year</span><b>${esc(d.yearOfManufacture||"—")}</b></div><div><span>MOT status</span><b>${esc(d.motStatus||"—")}</b></div><div><span>MOT expiry</span><b>${esc(d.motExpiryDate||"—")}</b></div><div><span>Tax status</span><b>${esc(d.taxStatus||"—")}</b></div><div><span>Fuel</span><b>${esc(d.fuelType||"—")}</b></div></div></div>`;await refresh()}catch(e){out.innerHTML=`<div class="ops-card"><p class="profit-negative">${esc(e.message)}</p></div>`}}window.motLookup=motLookup;
+
+function renderPortal(){
+  if(!selectedVehicle){if(selectedJob)selectedVehicle=job(selectedJob).vehicle_id||"";else selectedVehicle=db.vehicles[0]?.id||""}const v=vehicle(selectedVehicle),c=customer(v.customer_id);
+  $("opsView").innerHTML=heading("Customer portal","Create a secure link where the customer can see job status, invoices, warranties and customer-visible documents.")+
+  `<div class="ops-card"><label>Vehicle<select onchange="selectedVehicle=this.value;updateContext();renderPortal()">${vehicleOptions(selectedVehicle,true)}</select></label>${selectedVehicle?`<p><b>${esc(v.registration||"Vehicle")}</b>${v.make_model?` · ${esc(v.make_model)}`:""}${c.name?` · ${esc(c.name)}`:""}</p><button class="primary big" onclick="createPortalLink()">Create secure customer portal link</button><p class="ops-note">Each link expires after 180 days. Create a fresh link whenever you need one.</p>`:""}</div><div id="portalShare"></div>`;
+}
+async function createPortalLink(){try{const r=await api("prepare_customer_portal",{vehicle_id:selectedVehicle});const base=`${location.origin}${location.pathname.replace(/[^/]*$/,"")}`,link=`${base}portal.html?t=${encodeURIComponent(r.token)}`;$("portalShare").innerHTML=`<div class="ops-card"><h2>Customer portal link</h2><input id="portalLink" class="portal-link" readonly value="${esc(link)}"><p class="ops-note">Expires ${fmtDateTime(r.expires_at)}</p><div class="ops-actions"><button class="primary" onclick="sharePortal()">Share</button><button class="secondary" onclick="copyPortal()">Copy link</button></div></div>`}catch(e){alert(e.message)}}window.createPortalLink=createPortalLink;
+async function copyPortal(){const link=$("portalLink")?.value||"";await navigator.clipboard?.writeText(link);alert("Portal link copied.")}window.copyPortal=copyPortal;
+async function sharePortal(){const link=$("portalLink")?.value||"";const v=vehicle(selectedVehicle);if(navigator.share){try{await navigator.share({title:"Ultimate Automotive Works customer portal",text:`Your workshop portal for ${v.registration||"your vehicle"}`,url:link});return}catch(_){}}copyPortal()}window.sharePortal=sharePortal;
+
+function renderBarcode(){
+  $("opsView").innerHTML=heading("Barcode scanner","Scan a parts barcode with the iPhone camera and copy it into jobs, invoices or service packages.")+
+  `<div class="ops-card"><button class="primary big" onclick="openScanner()">▥ Start barcode scanner</button><div id="barcodeResult">${lastBarcode?`<div class="barcode-code">${esc(lastBarcode)}</div><button class="secondary big" onclick="navigator.clipboard?.writeText('${esc(lastBarcode)}')">Copy barcode</button>`:`<p class="ops-note">Supports common EAN, UPC, Code 128, Code 39 and QR formats when the browser provides camera barcode detection. Manual entry remains available.</p>`}</div></div>`;
+}
+
+function renderDocuments(){
+  if(!selectedVehicle){if(selectedJob)selectedVehicle=job(selectedJob).vehicle_id||"";else selectedVehicle=db.vehicles[0]?.id||""}
+  const rows=db.documents.filter(d=>!selectedVehicle||d.vehicle_id===selectedVehicle).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  $("opsView").innerHTML=heading("Documents","Attach supplier invoices, warranty sheets, PDFs and check-in photos to a vehicle or job.")+
+  `<div class="ops-card"><div class="ops-grid"><label>Vehicle<select id="docVehicle" onchange="selectedVehicle=this.value;updateContext();renderDocuments()">${vehicleOptions(selectedVehicle,true)}</select></label><label>Job (optional)<select id="docJob">${jobOptions(selectedJob,true)}</select></label></div><label>Document<input id="docFile" type="file" accept="application/pdf,image/*,text/plain"></label><div class="ops-grid"><label>Category<select id="docCategory"><option>Supplier invoice</option><option>Check-in photo</option><option>Warranty</option><option>MOT</option><option>Customer document</option><option>Other</option></select></label><label class="check-label"><input id="docCustomerVisible" type="checkbox"> Visible in customer portal</label></div><button class="primary big" onclick="uploadDocument()">📎 Upload document</button><p class="ops-note">PDF, JPG, PNG, WebP or text up to 10 MB.</p></div><div class="ops-card"><h2>Vehicle documents</h2>${rows.map(d=>`<div class="ops-row doc-row"><div><b>${esc(d.filename)}</b><span>${esc(d.category)}${d.customer_visible?" · Customer visible":""}</span><small>${fmtDateTime(d.created_at)} · ${d.size_bytes?`${(Number(d.size_bytes)/1024/1024).toFixed(1)} MB`:""}</small></div><button class="mini-btn" onclick="openDocument('${d.id}')">Open</button></div>`).join("")||"No documents attached."}</div>`;
+}
+async function uploadDocument(){const file=$("docFile").files?.[0];if(!file){alert("Choose a document first.");return}if(file.size>10*1024*1024){alert("Document must be under 10 MB.");return}const reader=new FileReader();reader.onload=async()=>{try{const vehicleId=$("docVehicle").value||null,jobId=$("docJob").value||null;await api("upload_document",{vehicle_id:vehicleId,job_id:jobId,filename:file.name,category:$("docCategory").value,customer_visible:$("docCustomerVisible").checked,data_url:reader.result});selectedVehicle=vehicleId||selectedVehicle;selectedJob=jobId||selectedJob;await refresh();renderDocuments()}catch(e){alert(e.message)}};reader.readAsDataURL(file)}window.uploadDocument=uploadDocument;
+async function openDocument(id){try{const r=await api("document_url",{id});window.open(r.url,"_blank")}catch(e){alert(e.message)}}window.openDocument=openDocument;
+
+async function openScanner(callback=null){
+  scannerCallback=callback;$("scannerModal").classList.remove("hidden");$("scannerManual").value="";$("scannerMessage").textContent="Starting camera…";
+  if(!("BarcodeDetector"in window)||!navigator.mediaDevices?.getUserMedia){$("scannerMessage").textContent="Automatic barcode scanning is not available in this browser. Enter the barcode manually below.";return}
+  try{
+    const formats=["ean_13","ean_8","code_128","code_39","upc_a","upc_e","qr_code"];
+    const detector=new BarcodeDetector({formats});
+    scannerStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}}});
+    const video=$("scannerVideo");video.srcObject=scannerStream;await video.play();$("scannerMessage").textContent="Point the camera at the barcode.";
+    const scan=async()=>{if(!scannerStream)return;try{const codes=await detector.detect(video);if(codes?.[0]?.rawValue){acceptBarcode(codes[0].rawValue);return}}catch(_){ }scannerTimer=setTimeout(scan,250)};scan();
+  }catch(e){$("scannerMessage").textContent="Camera scanning could not start. Enter the barcode manually below."}
+}window.openScanner=openScanner;
+function acceptBarcode(code){lastBarcode=String(code||"").trim();const cb=scannerCallback;closeScanner();if(cb)cb(lastBarcode);else{activeTool="barcode";renderBarcode()}}window.acceptBarcode=acceptBarcode;
+function useManualBarcode(){const code=$("scannerManual").value.trim();if(code)acceptBarcode(code)}window.useManualBarcode=useManualBarcode;
+function closeScanner(){if(scannerTimer)clearTimeout(scannerTimer);scannerTimer=null;if(scannerStream)scannerStream.getTracks().forEach(t=>t.stop());scannerStream=null;$("scannerVideo").srcObject=null;$("scannerModal").classList.add("hidden");scannerCallback=null}window.closeScanner=closeScanner;
+
+async function init(){
+  try{await refresh();if(selectedJob&&!selectedVehicle)selectedVehicle=job(selectedJob).vehicle_id||"";showTool(activeTool)}
+  catch(e){$("opsView").innerHTML=`<div class="ops-card"><h2>Unable to load Workshop Pro</h2><p>${esc(e.message)}</p><button class="primary big" onclick="location.href='index.html?v=13'">Return to main app</button></div>`}
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setTimeout(init,250));else setTimeout(init,250);
+})();
