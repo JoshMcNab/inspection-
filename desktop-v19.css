@@ -1,0 +1,86 @@
+/* Adaptive desktop layout. Mobile remains the default; desktop activates at 900px+. */
+html[data-layout="desktop"] body{background:radial-gradient(circle at 15% 0,#111827 0,#070b12 34%),#070b12;min-height:100vh}
+html[data-layout="desktop"] header{height:68px;padding:0 32px;box-shadow:0 8px 26px #0005}
+html[data-layout="desktop"] header .app-name{font-size:17px;letter-spacing:.3px}
+html[data-layout="desktop"] header .icon{font-size:23px;cursor:pointer}
+html[data-layout="desktop"] main:not(.ops-main){max-width:1380px;padding:28px 34px 54px}
+html[data-layout="desktop"] h1{font-size:34px}
+html[data-layout="desktop"] h2{font-size:21px}
+html[data-layout="desktop"] .screen-title{display:grid;grid-template-columns:auto 1fr;column-gap:18px;align-items:end;margin-bottom:18px}
+html[data-layout="desktop"] .screen-title .back-link{grid-row:1/5;align-self:start;padding-top:10px}
+html[data-layout="desktop"] .screen-title .eyebrow,html[data-layout="desktop"] .screen-title h1,html[data-layout="desktop"] .screen-title .muted{grid-column:2;margin-left:0}
+html[data-layout="desktop"] .form,html[data-layout="desktop"] .detail-card,html[data-layout="desktop"] .list,html[data-layout="desktop"] .item-card{border-radius:18px}
+html[data-layout="desktop"] input,html[data-layout="desktop"] textarea,html[data-layout="desktop"] select{font-size:15px}
+html[data-layout="desktop"] .primary:hover{filter:brightness(1.06)}
+html[data-layout="desktop"] .secondary:hover,html[data-layout="desktop"] .workshop-tile:hover{border-color:#45556d;background:#182231}
+
+/* Main workshop home */
+html[data-layout="desktop"] #home.active{display:grid;grid-template-columns:1fr 1fr;gap:16px 18px;align-items:start}
+html[data-layout="desktop"] #home>.workshop-banner{grid-column:1/-1;margin:0;min-height:300px;padding:26px 42px;grid-template-columns:minmax(260px,38%) minmax(0,1fr)}
+html[data-layout="desktop"] #home>.workshop-banner::after{left:37.5%;width:62px}
+html[data-layout="desktop"] #home .banner-logo{max-width:390px}
+html[data-layout="desktop"] #home .banner-copy{padding-left:54px}
+html[data-layout="desktop"] #home .workshop-banner h1{font-size:58px;line-height:.92}
+html[data-layout="desktop"] #home .banner-tagline,html[data-layout="desktop"] #home .banner-sub{font-size:13px}
+html[data-layout="desktop"] #home>.big{margin:0;min-height:58px}
+html[data-layout="desktop"] #home>.workshop-launch{grid-column:1/-1;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:2px 0}
+html[data-layout="desktop"] #home .workshop-tile{min-height:105px;padding:18px;grid-template-columns:48px 1fr}
+html[data-layout="desktop"] #home .workshop-tile>span{font-size:30px}
+html[data-layout="desktop"] #home .workshop-tile b{font-size:16px}
+html[data-layout="desktop"] #home>.cards{grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr));margin:0}
+html[data-layout="desktop"] #home>.section-heading,html[data-layout="desktop"] #home>#recent{grid-column:1/-1}
+html[data-layout="desktop"] #home>#recent{min-height:96px}
+
+/* Dashboard, lists and profiles */
+html[data-layout="desktop"] #dashboard .dashboard-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+html[data-layout="desktop"] .dash-stat{min-height:104px;padding:18px}
+html[data-layout="desktop"] .dash-stat b{font-size:29px}
+html[data-layout="desktop"] #vehicles .search-bar,html[data-layout="desktop"] #jobs .search-bar{grid-template-columns:minmax(420px,1fr) auto;max-width:none}
+html[data-layout="desktop"] .inspection-row,html[data-layout="desktop"] .reminder-row,html[data-layout="desktop"] .audit-row,html[data-layout="desktop"] .history-row{padding-top:15px;padding-bottom:15px}
+html[data-layout="desktop"] #vehicleDetail .detail-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+html[data-layout="desktop"] #vehicleDetail .vehicle-actions{grid-template-columns:repeat(4,minmax(0,1fr));max-width:900px}
+html[data-layout="desktop"] #savedDetail .summary-grid,html[data-layout="desktop"] #summary .summary-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+html[data-layout="desktop"] #savedDetail .saved-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+
+/* Forms */
+html[data-layout="desktop"] #vehicleForm.active,html[data-layout="desktop"] #details.active,html[data-layout="desktop"] #summary.active{max-width:1040px;margin:0 auto}
+html[data-layout="desktop"] #jobForm.active{max-width:1120px;margin:0 auto}
+html[data-layout="desktop"] #jobForm .form{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+html[data-layout="desktop"] #jobForm .form>label:first-child,html[data-layout="desktop"] #jobForm .form>.two,html[data-layout="desktop"] #jobForm .form>label:nth-last-child(-n+3){grid-column:1/-1}
+html[data-layout="desktop"] #details .form{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+html[data-layout="desktop"] #details .form>label:first-child,html[data-layout="desktop"] #details .form>.two,html[data-layout="desktop"] #details .form>label:nth-last-child(-n+3){grid-column:1/-1}
+html[data-layout="desktop"] #checklist.active{max-width:1120px;margin:0 auto}
+html[data-layout="desktop"] #checklist .item-card{padding:24px}
+html[data-layout="desktop"] #checklist .status-grid button{min-height:92px}
+
+/* Quote builder */
+html[data-layout="desktop"] #quoteBuilder.active{max-width:1320px;margin:0 auto}
+html[data-layout="desktop"] #quoteBuilder .quote-settings{max-width:640px}
+html[data-layout="desktop"] #quoteBuilder .quote-revision-tools{padding:20px}
+html[data-layout="desktop"] #quoteBuilder .quote-range-grid{grid-template-columns:1fr 1fr}
+html[data-layout="desktop"] #quoteLines{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+html[data-layout="desktop"] #quoteLines .quote-line{margin:0;min-width:0;height:100%}
+html[data-layout="desktop"] #quoteBuilder .quote-total-card{max-width:640px;margin-left:auto}
+html[data-layout="desktop"] #quoteBuilder>.big{width:auto;min-width:280px;margin-right:8px}
+html[data-layout="desktop"] #quoteBuilder .approval-share{max-width:840px}
+
+/* Workshop Pro desktop shell */
+html[data-layout="desktop"] .ops-main{max-width:1500px;margin:auto;padding:28px 34px 54px;display:grid;grid-template-columns:260px minmax(0,1fr);grid-template-rows:auto 1fr;gap:22px 26px;align-items:start}
+html[data-layout="desktop"] .ops-hero{grid-column:1/-1;margin:0;padding:24px 28px;min-height:130px;display:flex;flex-direction:column;justify-content:center}
+html[data-layout="desktop"] .ops-hero h1{font-size:38px;margin:2px 0 10px}
+html[data-layout="desktop"] .ops-nav{grid-column:1;grid-row:2;display:grid;grid-template-columns:1fr;gap:8px;margin:0;position:sticky;top:92px}
+html[data-layout="desktop"] .ops-nav button{min-height:62px;border-radius:14px;padding:10px 13px;display:grid;grid-template-columns:34px 1fr;align-items:center;column-gap:10px;cursor:pointer}
+html[data-layout="desktop"] .ops-nav button span{font-size:22px;margin:0;grid-row:1}
+html[data-layout="desktop"] .ops-nav button b{font-size:13px;grid-column:2}
+html[data-layout="desktop"] .ops-view{grid-column:2;grid-row:2;min-width:0;min-height:600px}
+html[data-layout="desktop"] .ops-card{padding:20px;margin:0 0 16px}
+html[data-layout="desktop"] .ops-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+html[data-layout="desktop"] .ops-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+html[data-layout="desktop"] .item-editor-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+html[data-layout="desktop"] .mot-result-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+html[data-layout="desktop"] .booking-row{padding:16px 18px}
+html[data-layout="desktop"] .ops-actions{gap:10px}
+html[data-layout="desktop"] .ops-actions .primary,html[data-layout="desktop"] .ops-actions .secondary{min-width:150px}
+
+/* Mid-size tablets keep a spacious mobile/tablet layout rather than the full desktop shell. */
+@media (min-width:700px) and (max-width:899px){main:not(.ops-main){max-width:860px;padding:22px}.workshop-launch{grid-template-columns:repeat(2,1fr)}.dashboard-grid{grid-template-columns:repeat(3,1fr)}.ops-main{max-width:880px;padding:22px}.ops-nav{grid-template-columns:repeat(3,1fr)}}
