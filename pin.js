@@ -17,7 +17,8 @@
     "workshop-quotes":"quotes",
     "workshop-sync":"sync",
     "workshop-notify":"notify",
-    "workshop-monitor":"monitor"
+    "workshop-monitor":"monitor",
+    "workshop-repair-data":"repair"
   };
 
   function gate(){return document.getElementById("pinGate")}
@@ -113,22 +114,23 @@
 
 (()=>{
   const scripts=[
-    ['progress-v16.js?v=22','progressV16'],
-    ['quote-revision-v18.js?v=22','quoteRevisionV18'],
-    ['offline-v20.js?v=22','offlineV20'],
-    ['customer-notify-v20.js?v=22','notifyV20'],
-    ['notification-context-v21.js?v=22','notifyContextV21'],
-    ['monitor-v20.js?v=22','monitorV20'],
-    ['loyalty-guard-v22.js?v=22','loyaltyGuardV22']
+    ['progress-v16.js?v=23','progressV16'],
+    ['quote-revision-v18.js?v=23','quoteRevisionV18'],
+    ['offline-v20.js?v=23','offlineV20'],
+    ['customer-notify-v20.js?v=23','notifyV20'],
+    ['notification-context-v21.js?v=23','notifyContextV21'],
+    ['monitor-v20.js?v=23','monitorV20'],
+    ['loyalty-guard-v22.js?v=23','loyaltyGuardV22'],
+    ['repair-data-v23.js?v=23','repairDataV23']
   ];
   scripts.forEach(([src,key])=>{if(document.querySelector(`script[data-${key}]`))return;const s=document.createElement('script');s.src=src;s.dataset[key]='1';document.head.appendChild(s)});
 })();
 
 (()=>{
   if(!document.querySelector('link[data-desktop-v19]')){
-    const l=document.createElement('link');l.rel='stylesheet';l.href='desktop-v19.css?v=22';l.dataset.desktopV19='1';document.head.appendChild(l);
+    const l=document.createElement('link');l.rel='stylesheet';l.href='desktop-v19.css?v=23';l.dataset.desktopV19='1';document.head.appendChild(l);
   }
   if(!document.querySelector('script[data-device-layout-v19]')){
-    const s=document.createElement('script');s.src='device-layout-v19.js?v=22';s.dataset.deviceLayoutV19='1';document.head.appendChild(s);
+    const s=document.createElement('script');s.src='device-layout-v19.js?v=23';s.dataset.deviceLayoutV19='1';document.head.appendChild(s);
   }
 })();
