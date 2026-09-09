@@ -13,7 +13,7 @@
     'repair-data-v23.js'
   ];
   const pageFeatures={
-    index:common,
+    index:[...common,'src/features/home/home-v25.js'],
     operations:[...common,'parts-catalog-v24.js']
   };
 
