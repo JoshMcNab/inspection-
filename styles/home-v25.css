@@ -216,3 +216,22 @@ header.uaw-header-v25 .uaw-header-bell::after{content:"";position:absolute;right
   #home.uaw-home-v25 .uaw-dashboard-card.uaw-admin-card{grid-column:1/-1}
   #home.uaw-home-v25>.uaw-primary-action,#home.uaw-home-v25>.uaw-secondary-action{max-width:none}
 }
+
+/* v25.4 iPhone correction pass: keep the two-column look, but give text more usable width and reduce the oversized decorative circles. */
+@media(max-width:430px){
+  #home.uaw-home-v25 .workshop-launch{gap:9px!important;margin-top:15px!important}
+  #home.uaw-home-v25 .uaw-dashboard-card{
+    min-height:112px!important;
+    padding:13px 31px 13px 10px!important;
+    grid-template-columns:34px minmax(0,1fr)!important;
+    column-gap:7px!important;
+    row-gap:3px!important;
+  }
+  #home.uaw-home-v25 .uaw-dashboard-card .uaw-card-icon{width:34px;height:34px;font-size:25px}
+  #home.uaw-home-v25 .uaw-dashboard-card b{font-size:13px;line-height:1.08}
+  #home.uaw-home-v25 .uaw-dashboard-card small{font-size:9.5px;line-height:1.18}
+  #home.uaw-home-v25 .uaw-dashboard-card::after{right:5px;width:25px;height:25px;font-size:21px}
+  #home.uaw-home-v25 .uaw-dashboard-card::before{left:-35px;bottom:-46px;width:86px;height:86px;border-width:12px;opacity:.22}
+  #home.uaw-home-v25 .uaw-dashboard-card.uaw-admin-card{min-height:96px!important;grid-template-columns:42px minmax(0,1fr)!important;padding-left:13px!important}
+  #home.uaw-home-v25 .uaw-dashboard-card.uaw-admin-card .uaw-card-icon{width:40px;height:40px;font-size:29px}
+}
