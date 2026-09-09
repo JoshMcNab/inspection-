@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Vehicle Inspection Pro">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=4">
 <title>Vehicle Inspection Pro</title>
 </head>
 <body>
@@ -16,9 +16,9 @@
 
 <main>
 <section id="home" class="screen active">
-  <div class="hero brand-hero">
-    <img src="logo.png" class="hero-logo" alt="Ultimate Automotive Works">
-    <div class="hero-copy"><p class="eyebrow">WORKSHOP</p><h1>Vehicle Inspection</h1><p>Professional workshop inspections, built for your iPhone.</p></div>
+  <div class="hero brand-hero" style="overflow:hidden;display:flex;align-items:center;gap:14px;">
+    <img src="logo.png?v=4" class="hero-logo" alt="Ultimate Automotive Works" style="width:82px!important;max-width:82px!important;min-width:82px!important;height:82px!important;max-height:82px!important;object-fit:contain!important;display:block!important;flex:0 0 82px!important;border-radius:16px;">
+    <div class="hero-copy" style="min-width:0;flex:1;"><p class="eyebrow">WORKSHOP</p><h1>Vehicle Inspection</h1><p>Professional workshop inspections, built for your iPhone.</p></div>
   </div>
   <button class="primary big" onclick="startInspection()">＋ New Inspection</button>
   <button class="secondary big" onclick="showPastInspections()">🗂 View Past Inspections</button>
@@ -83,6 +83,6 @@
   <button class="secondary big" onclick="window.print()">🖨 Print / Save PDF</button>
 </section>
 </main>
-<script src="app.js"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>
