@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Vehicle Inspection Pro">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=6">
 <title>Vehicle Inspection Pro</title>
 </head>
 <body>
@@ -16,9 +16,40 @@
 
 <main>
 <section id="home" class="screen active">
-  <div class="hero brand-hero" style="overflow:hidden;display:flex;align-items:center;gap:14px;">
-    <img src="logo.png?v=4" class="hero-logo" alt="Ultimate Automotive Works" style="width:82px!important;max-width:82px!important;min-width:82px!important;height:82px!important;max-height:82px!important;object-fit:contain!important;display:block!important;flex:0 0 82px!important;border-radius:16px;">
-    <div class="hero-copy" style="min-width:0;flex:1;"><p class="eyebrow">WORKSHOP</p><h1>Vehicle Inspection</h1><p>Professional workshop inspections, built for your iPhone.</p></div>
+  <div class="hero workshop-banner">
+    <div class="banner-visual" aria-hidden="true">
+      <svg viewBox="0 0 360 210" role="img">
+        <defs>
+          <linearGradient id="redGlow" x1="0" x2="1"><stop offset="0" stop-color="#ff3940"/><stop offset="1" stop-color="#a20f16"/></linearGradient>
+        </defs>
+        <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M65 128a80 80 0 0 1 152-42" stroke="#ef2b2d" stroke-width="5" opacity=".9"/>
+          <path d="M57 119l-12-12 9-17 16 2 3-12-11-11 13-14 15 8 10-8-4-16 18-7 9 14 13-2 6-16 20 1 4 17 13 4 11-13 17 9-5 16 10 9 16-6 11 15-11 13 4 12" stroke="#e5e7eb" stroke-width="4" opacity=".95"/>
+          <path d="M32 151h215" stroke="#475569" stroke-width="2"/>
+          <path d="M52 143l14-29 29-12 52 1 22 12 14 28" stroke="#f8fafc" stroke-width="5"/>
+          <path d="M73 119h75l15 13H61z" stroke="#f8fafc" stroke-width="4"/>
+          <circle cx="79" cy="145" r="14" stroke="#f8fafc" stroke-width="5"/>
+          <circle cx="159" cy="145" r="14" stroke="#f8fafc" stroke-width="5"/>
+          <path d="M156 79h42l20 20v42h-42" stroke="#f8fafc" stroke-width="5"/>
+          <path d="M167 91h25l13 14h-38z" stroke="#f8fafc" stroke-width="3"/>
+          <circle cx="199" cy="145" r="14" stroke="#f8fafc" stroke-width="5"/>
+        </g>
+        <path d="M242 0h24l-58 210h-24z" fill="url(#redGlow)" opacity=".82"/>
+      </svg>
+      <div class="banner-brand">ULTIMATE AUTOMOTIVE WORKS</div>
+      <div class="banner-services">REPAIR <span>•</span> MAINTENANCE <span>•</span> DIAGNOSTICS</div>
+    </div>
+    <div class="banner-copy">
+      <p class="eyebrow">WORKSHOP</p>
+      <h1>Vehicle<br>Inspection</h1>
+      <p class="banner-tagline">Fast <span>•</span> Reliable <span>•</span> Professional</p>
+      <p class="banner-sub">Built for your iPhone</p>
+      <div class="service-icons">
+        <div><b>🛠</b><span>Repair</span></div>
+        <div><b>⚙️</b><span>Maintenance</span></div>
+        <div><b>〽</b><span>Diagnostics</span></div>
+      </div>
+    </div>
   </div>
   <button class="primary big" onclick="startInspection()">＋ New Inspection</button>
   <button class="secondary big" onclick="showPastInspections()">🗂 View Past Inspections</button>
@@ -83,6 +114,6 @@
   <button class="secondary big" onclick="window.print()">🖨 Print / Save PDF</button>
 </section>
 </main>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>
