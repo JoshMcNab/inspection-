@@ -30,7 +30,7 @@ let visibleSaved=[];
 let cloudBusy=false;
 const $=id=>document.getElementById(id);
 
-function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");scrollTo(0,0)}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id)?.classList.add("active");scrollTo(0,0)}
 function getSaved(){try{return JSON.parse(localStorage.getItem("vehicleInspections")||"[]")}catch(e){return[]}}
 function setSaved(items){try{localStorage.setItem("vehicleInspections",JSON.stringify(items.slice(0,50)));return true}catch(e){return false}}
 function esc(v){return String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]))}
@@ -38,112 +38,38 @@ function newClientId(){try{return crypto.randomUUID()}catch(e){return `inspectio
 function itemKey(x){return x.clientId||`${x.date||""}|${x.reg||""}|${x.model||""}`}
 function sorted(items){return [...items].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0))}
 
-function normalizeLocalIds(){
-  let local=getSaved(),changed=false;
-  local=local.map(x=>{if(!x.clientId){x.clientId=newClientId();changed=true}return x});
-  if(changed)setSaved(local);
-  return local;
-}
+function normalizeLocalIds(){let local=getSaved(),changed=false;local=local.map(x=>{if(!x.clientId){x.clientId=newClientId();changed=true}return x});if(changed)setSaved(local);return local}
+function mergeSaved(){const map=new Map();cloudSaved.forEach(x=>map.set(itemKey(x),x));getSaved().forEach(x=>map.set(itemKey(x),x));visibleSaved=sorted([...map.values()])}
 
-function mergeSaved(){
-  const map=new Map();
-  cloudSaved.forEach(x=>map.set(itemKey(x),x));
-  getSaved().forEach(x=>map.set(itemKey(x),x));
-  visibleSaved=sorted([...map.values()]);
-}
+async function pushInspection(x){const row={client_id:x.clientId,inspection_date:x.date||new Date().toISOString(),registration:x.reg||null,vehicle:x.model||null,customer:x.customer||null,payload:x};try{const r=await fetch(CLOUD_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(row)});if(r.ok)return true;console.warn("Cloud save failed",r.status,await r.text())}catch(e){console.warn("Cloud unavailable",e)}return false}
+async function syncLocalToCloud(){let local=normalizeLocalIds(),changed=false;for(const x of local){if(x.cloudSynced)continue;const ok=await pushInspection(x);if(ok){x.cloudSynced=true;changed=true}}if(changed)setSaved(local)}
+async function loadCloud(){try{const r=await fetch(CLOUD_ENDPOINT,{method:"GET",cache:"no-store"});if(!r.ok)throw new Error(`${r.status} ${await r.text()}`);const rows=await r.json();cloudSaved=rows.map(row=>({...(row.payload||{}),clientId:row.client_id,cloudSynced:true,date:(row.payload&&row.payload.date)||row.inspection_date}));return true}catch(e){console.warn("Could not load shared inspections",e);return false}}
+async function refreshSharedInspections(){if(cloudBusy)return;cloudBusy=true;try{normalizeLocalIds();mergeSaved();refreshViews();await syncLocalToCloud();await loadCloud();mergeSaved();refreshViews()}finally{cloudBusy=false}}
+function refreshViews(){renderRecent();if($("past")&&$("past").classList.contains("active"))renderPastList()}
 
-async function pushInspection(x){
-  const row={
-    client_id:x.clientId,
-    inspection_date:x.date||new Date().toISOString(),
-    registration:x.reg||null,
-    vehicle:x.model||null,
-    customer:x.customer||null,
-    payload:x
-  };
-  try{
-    const r=await fetch(CLOUD_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(row)});
-    if(r.ok)return true;
-    console.warn("Cloud save failed",r.status,await r.text());
-  }catch(e){console.warn("Cloud unavailable",e)}
-  return false;
-}
-
-async function syncLocalToCloud(){
-  let local=normalizeLocalIds(),changed=false;
-  for(const x of local){
-    if(x.cloudSynced)continue;
-    const ok=await pushInspection(x);
-    if(ok){x.cloudSynced=true;changed=true}
-  }
-  if(changed)setSaved(local);
-}
-
-async function loadCloud(){
-  try{
-    const r=await fetch(CLOUD_ENDPOINT,{method:"GET",cache:"no-store"});
-    if(!r.ok)throw new Error(`${r.status} ${await r.text()}`);
-    const rows=await r.json();
-    cloudSaved=rows.map(row=>({...(row.payload||{}),clientId:row.client_id,cloudSynced:true,date:(row.payload&&row.payload.date)||row.inspection_date}));
-    return true;
-  }catch(e){console.warn("Could not load shared inspections",e);return false}
-}
-
-async function refreshSharedInspections(){
-  if(cloudBusy)return;
-  cloudBusy=true;
-  try{
-    normalizeLocalIds();
-    mergeSaved();
-    refreshViews();
-    await syncLocalToCloud();
-    await loadCloud();
-    mergeSaved();
-    refreshViews();
-  }finally{cloudBusy=false}
-}
-
-function refreshViews(){
-  renderRecent();
-  if($("past")&&$("past").classList.contains("active"))renderPastList();
-}
-
-function startInspection(){data={};i=0;results=sections.map(x=>({section:x[0],item:x[1],status:null,notes:"",photo:null}));["customer","reg","model","year","mileage","vin","overall"].forEach(id=>{if($(id))$(id).value=""});show("details")}
-function beginChecklist(){data.customer=$("customer").value;data.reg=$("reg").value.toUpperCase();data.model=$("model").value;data.year=$("year").value;data.mileage=$("mileage").value;data.vin=$("vin").value;i=0;show("checklist");renderItem()}
+function clearInspectionFields(){["customer","customerPhone","customerEmail","reg","model","year","mileage","vin","technician","overall","tyreFL","tyreFR","tyreRL","tyreRR","brakeFront","brakeRear"].forEach(id=>{if($(id))$(id).value=""})}
+function startInspection(){data={};i=0;results=sections.map(x=>({section:x[0],item:x[1],status:null,notes:"",photo:null}));clearInspectionFields();clearSig();show("details")}
+window.startInspectionWithPrefill=function(prefill={}){startInspection();const map={customer:"customer",customerPhone:"customerPhone",customerEmail:"customerEmail",reg:"reg",model:"model",year:"year",mileage:"mileage",vin:"vin",technician:"technician"};Object.entries(map).forEach(([key,id])=>{if($(id)&&prefill[key]!=null)$(id).value=prefill[key]})};
+function beginChecklist(){data.customer=$("customer").value;data.customerPhone=$("customerPhone")?.value||"";data.customerEmail=$("customerEmail")?.value||"";data.reg=$("reg").value.toUpperCase();data.model=$("model").value;data.year=$("year").value;data.mileage=$("mileage").value;data.vin=$("vin").value;data.technician=$("technician")?.value||"";i=0;show("checklist");renderItem()}
 function renderItem(){let r=results[i];$("sectionLabel").textContent=r.section;$("itemTitle").textContent=r.item;$("itemHelp").textContent=sections[i][2];$("counter").textContent=`${i+1} / ${results.length}`;$("progress").style.width=`${((i+1)/results.length)*100}%`;$("notes").value=r.notes||"";document.querySelectorAll(".status-grid button").forEach(b=>b.classList.toggle("selected",b.dataset.status===r.status));$("photoPreview").innerHTML=r.photo?`<img class="photo-thumb" src="${r.photo}">`:"";$("nextBtn").textContent=i===results.length-1?"Summary →":"Next →"}
 function setStatus(s){results[i].status=s;renderItem()}
-$("notes").addEventListener("input",e=>results[i].notes=e.target.value);
-$("photo").addEventListener("change",e=>{let f=e.target.files[0];if(!f)return;let rd=new FileReader();rd.onload=()=>{results[i].photo=rd.result;renderItem()};rd.readAsDataURL(f)});
+$("notes")?.addEventListener("input",e=>results[i].notes=e.target.value);
+$("photo")?.addEventListener("change",e=>{let f=e.target.files[0];if(!f)return;let rd=new FileReader();rd.onload=()=>{results[i].photo=rd.result;renderItem()};rd.readAsDataURL(f)});
 function prevItem(){if(i>0){i--;renderItem()}else show("details")}
 function nextItem(){if(i<results.length-1){i++;renderItem()}else{renderSummary();show("summary")}}
 function statusCounts(items){let c={pass:0,advisory:0,fail:0,unchecked:0};(items||[]).forEach(r=>c[r.status||"unchecked"]++);return c}
 function renderSummary(){let c=statusCounts(results);$("summaryStats").innerHTML=Object.entries(c).map(([k,v])=>`<div class="summary-card ${k}"><b>${v}</b><span>${k.toUpperCase()}</span></div>`).join("")}
+function readMeasurements(){const value=id=>$(id)?.value?.trim()||"";return{tyreFL:value("tyreFL"),tyreFR:value("tyreFR"),tyreRL:value("tyreRL"),tyreRR:value("tyreRR"),brakeFront:value("brakeFront"),brakeRear:value("brakeRear")}}
+function hasMeasurements(m){return m&&Object.values(m).some(Boolean)}
+function measurementsHtml(m){if(!hasMeasurements(m))return `<h3>Tyre & brake measurements</h3><p>No measurements recorded.</p>`;const cells=[["Tyre FL",m.tyreFL,"mm"],["Tyre FR",m.tyreFR,"mm"],["Tyre RL",m.tyreRL,"mm"],["Tyre RR",m.tyreRR,"mm"],["Front pads",m.brakeFront,"mm"],["Rear pads",m.brakeRear,"mm"]];return `<h3>Tyre & brake measurements</h3><div class="detail-grid">${cells.map(([label,v,u])=>`<div><span>${label}</span><b>${esc(v||"—")}${v?` ${u}`:""}</b></div>`).join("")}</div>`}
 
-async function saveInspection(){
-  let signature="";
-  try{signature=canvas.toDataURL("image/png")}catch(e){}
-  const inspection={...data,results:JSON.parse(JSON.stringify(results)),overall:$("overall").value,signature,date:new Date().toISOString(),clientId:newClientId(),cloudSynced:false};
-  let local=getSaved();local.unshift(inspection);
-  if(!setSaved(local)){alert("This inspection is too large to save locally. Try removing some photos and save again.");return}
-  mergeSaved();renderRecent();show("home");
-  const ok=await pushInspection(inspection);
-  if(ok){
-    local=getSaved();const found=local.find(x=>x.clientId===inspection.clientId);if(found)found.cloudSynced=true;setSaved(local);
-    await loadCloud();mergeSaved();refreshViews();
-    alert("Inspection saved to the shared workshop cloud.");
-  }else{
-    mergeSaved();refreshViews();
-    alert("Inspection saved on this iPhone. It will sync to the workshop cloud when the connection is available.");
-  }
-}
-
+async function saveInspection(){let signature="";try{signature=canvas.toDataURL("image/png")}catch(e){}const inspection={...data,measurements:readMeasurements(),results:JSON.parse(JSON.stringify(results)),overall:$("overall").value,signature,date:new Date().toISOString(),clientId:newClientId(),cloudSynced:false};let local=getSaved();local.unshift(inspection);if(!setSaved(local)){alert("This inspection is too large to save locally. Try removing some photos and save again.");return}mergeSaved();renderRecent();show("home");const ok=await pushInspection(inspection);if(ok){local=getSaved();const found=local.find(x=>x.clientId===inspection.clientId);if(found)found.cloudSynced=true;setSaved(local);await loadCloud();mergeSaved();refreshViews();window.workshopRefresh?.();alert("Inspection saved to the shared workshop cloud.")}else{mergeSaved();refreshViews();alert("Inspection saved on this iPhone. It will sync to the workshop cloud when the connection is available.")}}
 function inspectionRow(x,index){let c=statusCounts(x.results);return `<button class="inspection-row" onclick="openSavedInspection(${index})"><div><b>${esc(x.reg||"No registration")}</b><span>${esc(x.model||"Vehicle")}</span><small>${new Date(x.date).toLocaleString("en-GB")}${x.cloudSynced?" · ☁ Shared":" · Saved locally"}</small></div><div class="row-status"><span class="pass-dot">${c.pass} ✓</span>${c.advisory?`<span class="advisory-dot">${c.advisory} !</span>`:""}${c.fail?`<span class="fail-dot">${c.fail} ×</span>`:""}<strong>›</strong></div></button>`}
-function renderRecent(){mergeSaved();$("savedCount").textContent=visibleSaved.length;$("recent").className=visibleSaved.length?"list inspection-list":"list empty";$("recent").innerHTML=visibleSaved.length?visibleSaved.slice(0,5).map((x,index)=>inspectionRow(x,index)).join(""):"No inspections yet."}
+function renderRecent(){mergeSaved();if(!$("savedCount")||!$("recent"))return;$("savedCount").textContent=visibleSaved.length;$("recent").className=visibleSaved.length?"list inspection-list":"list empty";$("recent").innerHTML=visibleSaved.length?visibleSaved.slice(0,5).map((x,index)=>inspectionRow(x,index)).join(""):"No inspections yet."}
 function renderPastList(){mergeSaved();$("pastList").className=visibleSaved.length?"list inspection-list":"list empty";$("pastList").innerHTML=visibleSaved.length?visibleSaved.map((x,index)=>inspectionRow(x,index)).join(""):"No inspections yet."}
 function showPastInspections(){renderPastList();show("past");refreshSharedInspections()}
-function openSavedInspection(index){let x=visibleSaved[index];if(!x)return;$("savedTitle").textContent=`${x.reg||"No registration"} · ${x.model||"Vehicle"}`;$("savedDate").textContent=x.date?new Date(x.date).toLocaleString("en-GB"):"";$("savedVehicle").innerHTML=`<h3>Vehicle details</h3><div class="detail-grid"><div><span>Customer</span><b>${esc(x.customer||"—")}</b></div><div><span>Registration</span><b>${esc(x.reg||"—")}</b></div><div><span>Make & model</span><b>${esc(x.model||"—")}</b></div><div><span>Year</span><b>${esc(x.year||"—")}</b></div><div><span>Mileage</span><b>${esc(x.mileage||"—")}</b></div><div><span>VIN</span><b>${esc(x.vin||"—")}</b></div></div>`;let c=statusCounts(x.results);$("savedStats").innerHTML=Object.entries(c).map(([k,v])=>`<div class="summary-card ${k}"><b>${v}</b><span>${k.toUpperCase()}</span></div>`).join("");$("savedResults").innerHTML=(x.results||[]).map(r=>`<div class="result-row"><div><small>${esc(r.section||"")}</small><b>${esc(r.item||"")}</b>${r.notes?`<p>${esc(r.notes)}</p>`:""}</div><span class="status-badge ${r.status||"unchecked"}">${esc((r.status||"unchecked").toUpperCase())}</span>${r.photo?`<img class="saved-photo" src="${r.photo}" alt="Inspection photo">`:""}</div>`).join("");$("savedOverall").innerHTML=`<h3>Overall comments</h3><p>${esc(x.overall||"No overall comments recorded.")}</p>${x.signature?`<h3>Technician signature</h3><img class="saved-signature" src="${x.signature}" alt="Technician signature">`:""}`;show("savedDetail")}
-
-$("homeBtn").onclick=()=>{renderRecent();show("home");refreshSharedInspections()};
+function openSavedInspection(index){let x=visibleSaved[index];if(!x)return;window.currentInspection=x;$("savedTitle").textContent=`${x.reg||"No registration"} · ${x.model||"Vehicle"}`;$("savedDate").textContent=x.date?new Date(x.date).toLocaleString("en-GB"):"";$("savedVehicle").innerHTML=`<h3>Vehicle details</h3><div class="detail-grid"><div><span>Customer</span><b>${esc(x.customer||"—")}</b></div><div><span>Phone</span><b>${esc(x.customerPhone||"—")}</b></div><div><span>Email</span><b>${esc(x.customerEmail||"—")}</b></div><div><span>Registration</span><b>${esc(x.reg||"—")}</b></div><div><span>Make & model</span><b>${esc(x.model||"—")}</b></div><div><span>Year</span><b>${esc(x.year||"—")}</b></div><div><span>Mileage</span><b>${esc(x.mileage||"—")}</b></div><div><span>VIN</span><b>${esc(x.vin||"—")}</b></div><div><span>Technician</span><b>${esc(x.technician||"—")}</b></div></div>`;let c=statusCounts(x.results);$("savedStats").innerHTML=Object.entries(c).map(([k,v])=>`<div class="summary-card ${k}"><b>${v}</b><span>${k.toUpperCase()}</span></div>`).join("");$("savedResults").innerHTML=(x.results||[]).map(r=>`<div class="result-row"><div><small>${esc(r.section||"")}</small><b>${esc(r.item||"")}</b>${r.notes?`<p>${esc(r.notes)}</p>`:""}</div><span class="status-badge ${r.status||"unchecked"}">${esc((r.status||"unchecked").toUpperCase())}</span>${r.photo?`<img class="saved-photo" src="${r.photo}" alt="Inspection photo">`:""}</div>`).join("");$("savedMeasurements").innerHTML=measurementsHtml(x.measurements);$("savedOverall").innerHTML=`<h3>Overall comments</h3><p>${esc(x.overall||"No overall comments recorded.")}</p>${x.signature?`<h3>Technician signature</h3><img class="saved-signature" src="${x.signature}" alt="Technician signature">`:""}`;show("savedDetail")}
+$("homeBtn").onclick=()=>{renderRecent();show("home");refreshSharedInspections();window.workshopRefresh?.()};
 
 const canvas=$("sig"),ctx=canvas.getContext("2d");let drawing=false;
 function resizeSig(){let previous="";try{previous=canvas.toDataURL()}catch(e){};canvas.width=canvas.clientWidth*2;canvas.height=canvas.clientHeight*2;ctx.setTransform(2,0,0,2,0,0);ctx.lineWidth=2;ctx.lineCap="round";if(previous){let img=new Image();img.onload=()=>ctx.drawImage(img,0,0,canvas.clientWidth,canvas.clientHeight);img.src=previous}}
@@ -152,6 +78,5 @@ function pos(e){let r=canvas.getBoundingClientRect(),p=e.touches?e.touches[0]:e;
 function down(e){drawing=true;let p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);e.preventDefault()}
 function move(e){if(!drawing)return;let p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();e.preventDefault()}
 canvas.addEventListener("mousedown",down);canvas.addEventListener("mousemove",move);addEventListener("mouseup",()=>drawing=false);canvas.addEventListener("touchstart",down);canvas.addEventListener("touchmove",move);canvas.addEventListener("touchend",()=>drawing=false);
-function clearSig(){ctx.clearRect(0,0,canvas.width,canvas.height)}
-
+function clearSig(){if(ctx)ctx.clearRect(0,0,canvas.width,canvas.height)}
 normalizeLocalIds();mergeSaved();renderRecent();refreshSharedInspections();
