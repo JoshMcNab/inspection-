@@ -1,0 +1,40 @@
+/* Visual polish for the v25 workshop shell. The original logo.png is intentionally left untouched. */
+#home .workshop-banner{
+  background:
+    radial-gradient(ellipse at 18% 48%,rgba(239,43,45,.14),transparent 42%),
+    radial-gradient(ellipse at 88% 92%,rgba(239,43,45,.08),transparent 38%),
+    linear-gradient(135deg,#06090f 0%,#0b1220 56%,#120a0f 100%);
+  border-color:#2b3546;
+  box-shadow:0 16px 38px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.025);
+}
+#home .workshop-banner::before{
+  background:linear-gradient(110deg,transparent 0 35%,rgba(255,255,255,.018) 47%,transparent 60%);
+}
+#home .workshop-banner::after{
+  opacity:.82;
+  box-shadow:0 0 28px rgba(239,43,45,.24);
+}
+#home .banner-left{
+  background:transparent!important;
+  overflow:visible;
+}
+#home .banner-logo{
+  background:transparent!important;
+  mix-blend-mode:screen;
+  opacity:.97;
+  filter:contrast(1.08) brightness(1.05) drop-shadow(0 10px 18px rgba(0,0,0,.34));
+}
+.pin-logo{
+  background:transparent!important;
+  mix-blend-mode:screen;
+}
+
+/* Keep the live sync indicator useful without hiding the last menu row. */
+body:has(.offline-status-v20){padding-bottom:max(92px,calc(env(safe-area-inset-bottom) + 72px));}
+.offline-status-v20{box-shadow:0 8px 24px rgba(0,0,0,.36)!important}
+
+@media(max-width:520px){
+  #home .workshop-banner{gap:6px}
+  #home .banner-copy{padding-left:10px}
+  #home .banner-logo{transform:scale(1.04)}
+}
