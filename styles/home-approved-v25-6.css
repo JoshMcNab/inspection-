@@ -1,0 +1,140 @@
+/* Ultimate Automotive Works — approved home-screen polish v25.6
+   Matches the approved mock-up while preserving all existing live controls. */
+
+/* Hero: retain the current workshop scene, make the original logo slightly smaller,
+   lower and further left, as approved from the real iPhone correction pass. */
+#home.uaw-home-v25 .workshop-banner{
+  border-radius:22px!important;
+  background-position:3% 54%,center center!important;
+  background-size:37% auto,cover!important;
+  box-shadow:0 16px 38px rgba(0,0,0,.48),0 0 22px rgba(10,74,120,.08),inset 0 1px rgba(255,255,255,.04)!important;
+}
+
+/* Primary actions from approved mock-up. */
+#home.uaw-home-v25>.uaw-primary-action,
+#home.uaw-home-v25>.uaw-secondary-action{
+  min-height:64px!important;
+  border-radius:19px!important;
+  font-size:18px!important;
+  font-weight:800!important;
+  letter-spacing:-.015em!important;
+}
+#home.uaw-home-v25>.uaw-primary-action{
+  background:linear-gradient(135deg,#ff2b34 0%,#ef1722 55%,#d80b17 100%)!important;
+  box-shadow:0 12px 30px rgba(239,23,34,.28),inset 0 1px rgba(255,255,255,.08)!important;
+}
+#home.uaw-home-v25>.uaw-secondary-action{
+  background:linear-gradient(145deg,#112238,#0e1c2e)!important;
+  border:1px solid #315071!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.035)!important;
+}
+
+/* Two-column dashboard cards — roomier typography and cleaner decorative treatment. */
+#home.uaw-home-v25 .workshop-launch{
+  gap:10px!important;
+  margin-top:15px!important;
+}
+#home.uaw-home-v25 .uaw-dashboard-card{
+  min-height:122px!important;
+  padding:14px 34px 14px 12px!important;
+  grid-template-columns:39px minmax(0,1fr)!important;
+  column-gap:9px!important;
+  row-gap:4px!important;
+  border-radius:18px!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.04),0 12px 24px rgba(0,0,0,.28),0 0 16px var(--card-glow)!important;
+}
+#home.uaw-home-v25 .uaw-dashboard-card::before{
+  left:-33px!important;
+  bottom:-44px!important;
+  width:92px!important;
+  height:92px!important;
+  border-width:13px!important;
+  opacity:.24!important;
+}
+#home.uaw-home-v25 .uaw-dashboard-card::after{
+  right:8px!important;
+  width:27px!important;
+  height:27px!important;
+  font-size:22px!important;
+  border-color:rgba(148,163,184,.24)!important;
+  background:rgba(15,29,48,.84)!important;
+}
+#home.uaw-home-v25 .uaw-dashboard-card .uaw-card-icon{
+  width:39px!important;
+  height:39px!important;
+  font-size:28px!important;
+}
+#home.uaw-home-v25 .uaw-dashboard-card b{
+  font-size:14px!important;
+  line-height:1.08!important;
+  letter-spacing:-.012em!important;
+}
+#home.uaw-home-v25 .uaw-dashboard-card small{
+  margin-top:1px!important;
+  color:#9db0c8!important;
+  font-size:10.4px!important;
+  line-height:1.19!important;
+}
+#home.uaw-home-v25 .uaw-dashboard-card.uaw-admin-card{
+  min-height:105px!important;
+  grid-template-columns:46px minmax(0,1fr)!important;
+  padding:14px 42px 14px 14px!important;
+}
+#home.uaw-home-v25 .uaw-dashboard-card.uaw-admin-card .uaw-card-icon{
+  width:44px!important;
+  height:44px!important;
+  font-size:31px!important;
+}
+
+/* Header proportions from approved target. */
+header.uaw-header-v25{
+  min-height:70px!important;
+  padding-top:7px!important;
+  padding-bottom:7px!important;
+}
+header.uaw-header-v25 .app-name strong{font-size:15.5px!important}
+header.uaw-header-v25 .app-name small{font-size:10.5px!important;color:#93a6bd!important}
+header.uaw-header-v25 .uaw-header-bell{font-size:22px!important}
+
+/* Status panel: keep it integrated rather than floating over the dashboard. */
+#home.uaw-home-v25 .uaw-home-status{
+  margin-top:16px!important;
+  border-radius:20px!important;
+  border-color:#315071!important;
+  background:linear-gradient(145deg,#0b1725,#09131f)!important;
+}
+
+@media(max-width:430px){
+  #home.uaw-home-v25 .workshop-banner{
+    border-radius:20px!important;
+    background-position:2.4% 54%,center center!important;
+    background-size:37% auto,cover!important;
+  }
+  #home.uaw-home-v25>.uaw-primary-action,
+  #home.uaw-home-v25>.uaw-secondary-action{min-height:62px!important}
+  #home.uaw-home-v25 .uaw-dashboard-card{
+    min-height:120px!important;
+    padding:13px 33px 13px 11px!important;
+    grid-template-columns:38px minmax(0,1fr)!important;
+    column-gap:8px!important;
+  }
+  #home.uaw-home-v25 .uaw-dashboard-card .uaw-card-icon{width:38px!important;height:38px!important;font-size:27px!important}
+  #home.uaw-home-v25 .uaw-dashboard-card b{font-size:13.7px!important}
+  #home.uaw-home-v25 .uaw-dashboard-card small{font-size:10.1px!important}
+}
+
+@media(max-width:360px){
+  #home.uaw-home-v25 .workshop-banner{
+    background-position:1.8% 54%,center center!important;
+    background-size:38% auto,cover!important;
+  }
+  #home.uaw-home-v25 .uaw-dashboard-card{min-height:116px!important}
+}
+
+@media(min-width:900px){
+  #home.uaw-home-v25 .workshop-banner{
+    background-position:6% 53%,center 48%!important;
+    background-size:31% auto,cover!important;
+  }
+  #home.uaw-home-v25 .uaw-dashboard-card{min-height:145px!important}
+}
