@@ -5,21 +5,18 @@
   const $=id=>document.getElementById(id);
   let screenObserver=null,statusTimer=0;
 
+  function addStyle(path,marker){
+    if([...document.styleSheets].some(s=>s.href&&s.href.includes(path)))return;
+    const l=document.createElement('link');
+    l.rel='stylesheet';
+    l.href=`${path}?v=${encodeURIComponent(window.WorkshopConfig?.assetVersion||'25.6')}`;
+    l.dataset[marker]='1';
+    document.head.appendChild(l);
+  }
+
   function ensureStyle(){
-    if(!document.querySelector('link[data-uaw-home-style]')){
-      const l=document.createElement('link');
-      l.rel='stylesheet';
-      l.href=`styles/home-v25.css?v=${encodeURIComponent(window.WorkshopConfig?.assetVersion||'25.6')}`;
-      l.dataset.uawHomeStyle='1';
-      document.head.appendChild(l);
-    }
-    if(!document.querySelector('link[data-uaw-home-polish]')){
-      const p=document.createElement('link');
-      p.rel='stylesheet';
-      p.href=`styles/home-polish-v25-6.css?v=${encodeURIComponent(window.WorkshopConfig?.assetVersion||'25.6')}`;
-      p.dataset.uawHomePolish='1';
-      document.head.appendChild(p);
-    }
+    addStyle('styles/home-v25.css','uawHomeStyle');
+    addStyle('styles/home-approved-v25-6.css','uawHomeApproved');
   }
 
   function profile(){
