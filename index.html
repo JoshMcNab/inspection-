@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="style.css?v=10">
 <link rel="stylesheet" href="pin.css?v=10">
 <link rel="stylesheet" href="workshop.css?v=11">
-<link rel="stylesheet" href="quote-v12.css?v=12">
+<link rel="stylesheet" href="quote-v12.css?v=13">
 <title>Vehicle Inspection Pro</title>
 </head>
 <body>
@@ -49,6 +49,6 @@
 <section id="checklist" class="screen"><div class="toprow"><div><p class="eyebrow" id="sectionLabel"></p><h1 id="itemTitle"></h1></div><div class="counter" id="counter"></div></div><div class="item-card"><p id="itemHelp"></p><div class="status-grid"><button data-status="pass" onclick="setStatus('pass')">✓<span>PASS</span></button><button data-status="advisory" onclick="setStatus('advisory')">!<span>ADVISORY</span></button><button data-status="fail" onclick="setStatus('fail')">×<span>FAIL</span></button></div><label>Notes<textarea id="notes" placeholder="Add notes for this item..."></textarea></label><label class="photo">📷 Add photo<input type="file" accept="image/*" capture="environment" id="photo"></label><div id="photoPreview"></div></div><div class="nav"><button class="secondary" onclick="prevItem()">← Back</button><button class="primary" id="nextBtn" onclick="nextItem()">Next →</button></div></section>
 <section id="summary" class="screen"><p class="eyebrow">STEP 3 OF 3</p><h1>Inspection summary</h1><div id="summaryStats" class="summary-grid"></div><div class="form measurement-form"><h2>Tyre & brake measurements <span class="optional">(optional)</span></h2><p class="muted measurement-help">Record actual measurements for a more professional customer report.</p><div class="measurement-grid"><label>Tyre FL mm<input id="tyreFL" type="number" inputmode="decimal" step="0.1"></label><label>Tyre FR mm<input id="tyreFR" type="number" inputmode="decimal" step="0.1"></label><label>Tyre RL mm<input id="tyreRL" type="number" inputmode="decimal" step="0.1"></label><label>Tyre RR mm<input id="tyreRR" type="number" inputmode="decimal" step="0.1"></label><label>Front pads mm<input id="brakeFront" type="number" inputmode="decimal" step="0.1"></label><label>Rear pads mm<input id="brakeRear" type="number" inputmode="decimal" step="0.1"></label></div></div><label>Overall comments<textarea id="overall" placeholder="Overall condition, recommendations, customer comments..."></textarea></label><div class="signature-box"><p>Technician signature</p><canvas id="sig"></canvas><button class="secondary small" onclick="clearSig()">Clear</button></div><button class="primary big" onclick="saveInspection()">✓ Save inspection</button><button class="secondary big" onclick="window.print()">🖨 Print / Save PDF</button></section>
 </main>
-<script src="pin.js?v=10"></script><script src="app.js?v=11"></script><script src="workshop.js?v=11"></script><script src="quote-v12.js?v=12"></script>
+<script src="pin.js?v=10"></script><script src="app.js?v=11"></script><script src="workshop.js?v=11"></script><script src="quote-v12.js?v=13"></script>
 </body>
 </html>
