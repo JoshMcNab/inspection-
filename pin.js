@@ -90,7 +90,7 @@
 (()=>{
   if(document.querySelector('script[data-progress-v16]'))return;
   const s=document.createElement('script');
-  s.src='progress-v16.js?v=16';
+  s.src='progress-v16.js?v=17';
   s.dataset.progressV16='1';
   document.head.appendChild(s);
 })();
