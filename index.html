@@ -8,16 +8,28 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Vehicle Inspection Pro">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=10">
 <title>Vehicle Inspection Pro</title>
 </head>
 <body>
-<header><div class="app-name">Vehicle Inspection Pro</div><button id="homeBtn" class="icon" aria-label="Home">⌂</button></header>
+<div id="pinGate" class="pin-gate">
+  <div class="pin-card">
+    <img src="logo.png?v=10" class="pin-logo" alt="Ultimate Automotive Works">
+    <p class="eyebrow">WORKSHOP ACCESS</p>
+    <h1>Enter PIN</h1>
+    <p class="pin-copy">Enter the workshop PIN to access shared inspections.</p>
+    <input id="pinInput" class="pin-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="one-time-code" placeholder="••••••">
+    <button id="pinSubmit" class="primary big" type="button">Unlock Workshop</button>
+    <p id="pinMessage" class="pin-message"></p>
+  </div>
+</div>
+
+<header><div class="app-name">Vehicle Inspection Pro</div><div class="header-actions"><button id="lockBtn" class="icon" aria-label="Lock workshop">🔒</button><button id="homeBtn" class="icon" aria-label="Home">⌂</button></div></header>
 
 <main>
 <section id="home" class="screen active">
   <div class="hero workshop-banner">
-    <div class="banner-left"><img src="logo.png?v=8" class="banner-logo" alt="Ultimate Automotive Works"></div>
+    <div class="banner-left"><img src="logo.png?v=10" class="banner-logo" alt="Ultimate Automotive Works"></div>
     <div class="banner-copy">
       <div class="banner-topline"><span></span><p class="eyebrow">WORKSHOP</p><span></span></div>
       <h1>Vehicle<br>Inspection</h1>
@@ -39,6 +51,6 @@
 <section id="checklist" class="screen"><div class="toprow"><div><p class="eyebrow" id="sectionLabel"></p><h1 id="itemTitle"></h1></div><div class="counter" id="counter"></div></div><div class="item-card"><p id="itemHelp"></p><div class="status-grid"><button data-status="pass" onclick="setStatus('pass')">✓<span>PASS</span></button><button data-status="advisory" onclick="setStatus('advisory')">!<span>ADVISORY</span></button><button data-status="fail" onclick="setStatus('fail')">×<span>FAIL</span></button></div><label>Notes<textarea id="notes" placeholder="Add notes for this item..."></textarea></label><label class="photo">📷 Add photo<input type="file" accept="image/*" capture="environment" id="photo"></label><div id="photoPreview"></div></div><div class="nav"><button class="secondary" onclick="prevItem()">← Back</button><button class="primary" id="nextBtn" onclick="nextItem()">Next →</button></div></section>
 <section id="summary" class="screen"><p class="eyebrow">STEP 3 OF 3</p><h1>Inspection summary</h1><div id="summaryStats" class="summary-grid"></div><label>Overall comments<textarea id="overall" placeholder="Overall condition, recommendations, customer comments..."></textarea></label><div class="signature-box"><p>Technician signature</p><canvas id="sig"></canvas><button class="secondary small" onclick="clearSig()">Clear</button></div><button class="primary big" onclick="saveInspection()">✓ Save inspection</button><button class="secondary big" onclick="window.print()">🖨 Print / Save PDF</button></section>
 </main>
-<script src="app.js?v=9"></script>
+<script src="app.js?v=10"></script>
 </body>
 </html>
