@@ -1,0 +1,19 @@
+name: Workshop uptime monitor
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check Ultimate Automotive Works app and backend
+        run: |
+          curl --fail --silent --show-error --location --retry 2 --retry-delay 5 --max-time 20 \
+            "https://rvkutsfyglopbhrnbotx.supabase.co/functions/v1/workshop-monitor"
