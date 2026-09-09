@@ -34,7 +34,10 @@
     try{
       const data=await api.request('auth','session',{}, {cache:'no-store'});
       if(data.user){delete document.documentElement.dataset.offlineAuth;setProfile(data.user);hideGate();return}
-    }catch(_){if(saved){setProfile(saved);hideGate();document.documentElement.dataset.offlineAuth='1';return}}
+    }catch(_){
+      if(navigator.onLine!==false&&!api.token()){showGate('Please sign in to the workshop.');return}
+      if(saved){setProfile(saved);hideGate();document.documentElement.dataset.offlineAuth='1';return}
+    }
     if(saved){setProfile(saved);hideGate();document.documentElement.dataset.offlineAuth='1';return}
     showGate('Connect to the internet once to sign in on this device.');
   }
