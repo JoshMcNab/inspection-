@@ -23,6 +23,7 @@
     loadStyle('styles/theme-v25.css');
     loadStyle('styles/visual-polish-v25.css');
     loadStyle('styles/home-banner-v25.css');
+    loadStyle('styles/home-approved-v25-6.css');
     await loadScript('src/core/config-v25.js');
     await loadScript('src/core/api-v25.js');
     await loadScript('src/core/auth-v25.js');
