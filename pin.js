@@ -4,6 +4,8 @@
   const AUTH=GATEWAY+"?service=auth";
   const TOKEN_KEY="workshopPinSession";
   const PROFILE_KEY="workshopStaffProfile";
+  const MAIN_CACHE="workshopOfflineCacheMainV20";
+  const PRO_CACHE="workshopOfflineCacheProV20";
   const nativeFetch=window.fetch.bind(window);
   const SERVICE_MAP={
     "workshop-auth":"auth",
@@ -11,7 +13,11 @@
     "workshop-pro":"pro",
     "workshop-inspections":"inspections",
     "workshop-restore":"restore",
-    "workshop-customer":"customer"
+    "workshop-customer":"customer",
+    "workshop-quotes":"quotes",
+    "workshop-sync":"sync",
+    "workshop-notify":"notify",
+    "workshop-monitor":"monitor"
   };
 
   function gate(){return document.getElementById("pinGate")}
@@ -25,6 +31,9 @@
     const service=SERVICE_MAP[functionName];
     return service?`${GATEWAY}?service=${service}`:url;
   }
+  function cacheKey(sourceName,action){if(sourceName==="workshop-inspections"&&action==="workshop_bootstrap")return MAIN_CACHE;if(sourceName==="workshop-pro"&&action==="bootstrap")return PRO_CACHE;return""}
+  function cachedResponse(key){try{const body=localStorage.getItem(key);if(!body)return null;return new Response(body,{status:200,headers:{"Content-Type":"application/json","X-Workshop-Offline":"1"}})}catch(_){return null}}
+  async function saveCache(key,response){if(!key||!response.ok)return;try{const text=await response.clone().text();JSON.parse(text);localStorage.setItem(key,text);localStorage.setItem(`${key}:at`,new Date().toISOString())}catch(_){}}
   window.workshopUser=getProfile();
 
   function ensureUserSelect(){
@@ -45,30 +54,44 @@
     if(url.startsWith(BASE)){
       const routedUrl=routeWorkshopUrl(url);
       const headers=new Headers(init.headers||(input instanceof Request?input.headers:undefined));
-      let action="";try{if(typeof init.body==="string")action=JSON.parse(init.body)?.action||""}catch(_){}
+      let action="",sourceName="";
+      try{if(typeof init.body==="string")action=JSON.parse(init.body)?.action||""}catch(_){}
+      if(url.startsWith(BASE))sourceName=url.slice(BASE.length).split(/[?#]/)[0];
+      const key=cacheKey(sourceName,action);
       const isLogin=routedUrl===AUTH&&action==="login";
       const t=token();if(t&&!isLogin)headers.set("x-workshop-token",t);
-      const response=await nativeFetch(routedUrl,{...init,headers});
-      if(response.status===401&&!isLogin){clearSession();showGate("Your workshop session has expired.")}
-      return response;
+      try{
+        const response=await nativeFetch(routedUrl,{...init,headers});
+        if(response.status===401&&!isLogin&&navigator.onLine!==false){clearSession();showGate("Your workshop session has expired.")}
+        if(response.ok&&key)saveCache(key,response);
+        return response;
+      }catch(error){
+        const cached=key?cachedResponse(key):null;
+        if(cached){document.dispatchEvent(new CustomEvent("workshop-offline-cache",{detail:{key,action}}));return cached}
+        throw error;
+      }
     }
     return nativeFetch(input,init);
   };
 
   async function validateToken(){
-    ensureUserSelect();const t=token();if(!t){showGate();return}
+    ensureUserSelect();const t=token(),saved=getProfile();if(!t){showGate();return}
+    if(navigator.onLine===false&&saved){setProfile(saved);hideGate();document.documentElement.dataset.offlineAuth="1";return}
     try{
       const r=await nativeFetch(AUTH,{method:"POST",headers:{"Content-Type":"application/json","x-workshop-token":t},body:JSON.stringify({action:"session"}),cache:"no-store"});
       const data=await r.json().catch(()=>({}));
-      if(r.ok&&data.user){setProfile(data.user);hideGate();return}
-    }catch(_){}
-    clearSession();showGate("Please sign in to the workshop.")
+      if(r.ok&&data.user){delete document.documentElement.dataset.offlineAuth;setProfile(data.user);hideGate();return}
+      if(r.status===401){clearSession();showGate("Please sign in to the workshop.");return}
+    }catch(_){if(saved){setProfile(saved);hideGate();document.documentElement.dataset.offlineAuth="1";return}}
+    if(saved){setProfile(saved);hideGate();document.documentElement.dataset.offlineAuth="1";return}
+    showGate("Connect to the internet once to sign in on this device.")
   }
 
   async function submitPin(){
     const input=document.getElementById("pinInput"),button=document.getElementById("pinSubmit"),m=messageEl();
     const username=document.getElementById("staffUser")?.value||"josh",pin=(input?.value||"").trim();
     if(!/^\d{4,8}$/.test(pin)){if(m)m.textContent="Enter your 4–8 digit PIN.";return}
+    if(navigator.onLine===false){if(m)m.textContent="Internet connection is needed for the first sign-in.";return}
     if(button){button.disabled=true;button.textContent="Signing in…"}if(m)m.textContent="";
     try{
       const r=await nativeFetch(AUTH,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"login",username,pin})});const data=await r.json().catch(()=>({}));
@@ -79,42 +102,31 @@
     finally{if(button){button.disabled=false;button.textContent="Sign in"}}
   }
 
-  async function lock(){const t=token();if(t){try{await nativeFetch(AUTH,{method:"POST",headers:{"Content-Type":"application/json","x-workshop-token":t},body:JSON.stringify({action:"logout"})})}catch(_){}}clearSession();showGate("Workshop locked.")}
+  async function lock(){const t=token();if(t&&navigator.onLine!==false){try{await nativeFetch(AUTH,{method:"POST",headers:{"Content-Type":"application/json","x-workshop-token":t},body:JSON.stringify({action:"logout"})})}catch(_){}}clearSession();showGate("Workshop locked.")}
 
   document.addEventListener("DOMContentLoaded",()=>{
     ensureUserSelect();const b=document.getElementById("pinSubmit");if(b)b.textContent="Sign in";
     b?.addEventListener("click",submitPin);document.getElementById("pinInput")?.addEventListener("keydown",e=>{if(e.key==="Enter")submitPin()});document.getElementById("lockBtn")?.addEventListener("click",lock);validateToken();
   });
+  window.addEventListener('online',()=>validateToken());
 })();
 
 (()=>{
-  if(document.querySelector('script[data-progress-v16]'))return;
-  const s=document.createElement('script');
-  s.src='progress-v16.js?v=17';
-  s.dataset.progressV16='1';
-  document.head.appendChild(s);
-})();
-
-(()=>{
-  if(document.querySelector('script[data-quote-revision-v18]'))return;
-  const s=document.createElement('script');
-  s.src='quote-revision-v18.js?v=18';
-  s.dataset.quoteRevisionV18='1';
-  document.head.appendChild(s);
+  const scripts=[
+    ['progress-v16.js?v=20','progressV16'],
+    ['quote-revision-v18.js?v=20','quoteRevisionV18'],
+    ['offline-v20.js?v=20','offlineV20'],
+    ['customer-notify-v20.js?v=20','notifyV20'],
+    ['monitor-v20.js?v=20','monitorV20']
+  ];
+  scripts.forEach(([src,key])=>{if(document.querySelector(`script[data-${key}]`))return;const s=document.createElement('script');s.src=src;s.dataset[key]='1';document.head.appendChild(s)});
 })();
 
 (()=>{
   if(!document.querySelector('link[data-desktop-v19]')){
-    const l=document.createElement('link');
-    l.rel='stylesheet';
-    l.href='desktop-v19.css?v=19';
-    l.dataset.desktopV19='1';
-    document.head.appendChild(l);
+    const l=document.createElement('link');l.rel='stylesheet';l.href='desktop-v19.css?v=20';l.dataset.desktopV19='1';document.head.appendChild(l);
   }
   if(!document.querySelector('script[data-device-layout-v19]')){
-    const s=document.createElement('script');
-    s.src='device-layout-v19.js?v=19';
-    s.dataset.deviceLayoutV19='1';
-    document.head.appendChild(s);
+    const s=document.createElement('script');s.src='device-layout-v19.js?v=20';s.dataset.deviceLayoutV19='1';document.head.appendChild(s);
   }
 })();
