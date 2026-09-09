@@ -1,6 +1,8 @@
-/* v25.3 approved workshop hero banner. Lower dashboard layout remains unchanged. */
+/* v25.4 approved workshop hero banner.
+   Keeps the workshop artwork background and overlays the original logo.png without modifying it. */
 #home.uaw-home-v25 .workshop-banner{
   display:block!important;
+  position:relative!important;
   width:100%;
   aspect-ratio:713/362;
   min-height:0!important;
@@ -14,7 +16,34 @@
 }
 #home.uaw-home-v25 .workshop-banner::before,
 #home.uaw-home-v25 .workshop-banner::after{display:none!important}
-#home.uaw-home-v25 .workshop-banner .banner-left,
+
+/* The original Ultimate Automotive Works logo is layered over the workshop scene.
+   Screen blending removes the solid black rectangle visually while preserving the master logo file. */
+#home.uaw-home-v25 .workshop-banner .banner-left{
+  display:flex!important;
+  position:absolute!important;
+  z-index:3!important;
+  left:4.5%!important;
+  top:50%!important;
+  width:39%!important;
+  height:auto!important;
+  transform:translateY(-50%)!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:transparent!important;
+  pointer-events:none!important;
+}
+#home.uaw-home-v25 .workshop-banner .banner-logo{
+  display:block!important;
+  width:100%!important;
+  max-width:none!important;
+  height:auto!important;
+  object-fit:contain!important;
+  background:transparent!important;
+  mix-blend-mode:screen!important;
+  opacity:.98!important;
+  filter:contrast(1.12) brightness(1.08) drop-shadow(0 10px 18px rgba(0,0,0,.34))!important;
+}
 #home.uaw-home-v25 .workshop-banner .banner-copy{display:none!important}
 
 @media(max-width:430px){
@@ -23,11 +52,19 @@
     border-radius:20px!important;
     background-position:center center!important;
   }
+  #home.uaw-home-v25 .workshop-banner .banner-left{
+    left:3.8%!important;
+    width:40.5%!important;
+  }
 }
 
 @media(min-width:900px){
   #home.uaw-home-v25 .workshop-banner{
     aspect-ratio:713/300;
     background-position:center 48%!important;
+  }
+  #home.uaw-home-v25 .workshop-banner .banner-left{
+    left:5%!important;
+    width:36%!important;
   }
 }
