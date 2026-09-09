@@ -1,4 +1,4 @@
-const CACHE='ultimate-workshop-v25-4';
+const CACHE='ultimate-workshop-v25-5';
 const CORE=[
   'index.html','operations.html','approval.html','portal.html',
   'style.css','pin.css','workshop.css','operations.css','quote-v12.css','upgrade-v14.css','progress-v16.css','desktop-v19.css','styles/theme-v25.css','styles/visual-polish-v25.css','styles/home-v25.css','styles/home-banner-v25.css',
