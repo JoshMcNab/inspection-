@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Workshop Pro · Ultimate Automotive Works</title>
+<link rel="stylesheet" href="style.css?v=10">
+<link rel="stylesheet" href="pin.css?v=10">
+<link rel="stylesheet" href="workshop.css?v=11">
+<link rel="stylesheet" href="operations.css?v=13">
+</head>
+<body>
+<div id="pinGate" class="pin-gate">
+  <div class="pin-card">
+    <img src="logo.png?v=10" class="pin-logo" alt="Ultimate Automotive Works">
+    <p class="eyebrow">WORKSHOP ACCESS</p>
+    <h1>Enter PIN</h1>
+    <p class="pin-copy">Enter the workshop PIN to access Workshop Pro.</p>
+    <input id="pinInput" class="pin-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="one-time-code" placeholder="••••••">
+    <button id="pinSubmit" class="primary big" type="button">Unlock Workshop</button>
+    <p id="pinMessage" class="pin-message"></p>
+  </div>
+</div>
+<header>
+  <button class="ops-back" onclick="location.href='index.html?v=13'">← Main app</button>
+  <div class="app-name">Workshop Pro</div>
+  <button id="lockBtn" class="icon" aria-label="Lock workshop">🔒</button>
+</header>
+<main class="ops-main">
+  <section class="ops-hero">
+    <p class="eyebrow">ULTIMATE AUTOMOTIVE WORKS</p>
+    <h1>Workshop Pro</h1>
+    <p id="opsContext" class="muted">Bookings, invoices, profit, service packages and customer records.</p>
+  </section>
+
+  <div id="opsNav" class="ops-nav">
+    <button data-tool="bookings" onclick="showTool('bookings')"><span>📅</span><b>Booking Diary</b></button>
+    <button data-tool="invoices" onclick="showTool('invoices')"><span>£</span><b>Invoices & Profit</b></button>
+    <button data-tool="packages" onclick="showTool('packages')"><span>🧰</span><b>Service Packages</b></button>
+    <button data-tool="checkin" onclick="showTool('checkin')"><span>🔑</span><b>Vehicle Check-in</b></button>
+    <button data-tool="warranty" onclick="showTool('warranty')"><span>🛡</span><b>Warranty Tracker</b></button>
+    <button data-tool="mot" onclick="showTool('mot')"><span>✓</span><b>MOT Lookup</b></button>
+    <button data-tool="portal" onclick="showTool('portal')"><span>👤</span><b>Customer Portal</b></button>
+    <button data-tool="barcode" onclick="showTool('barcode')"><span>▥</span><b>Barcode Scanner</b></button>
+    <button data-tool="documents" onclick="showTool('documents')"><span>📎</span><b>Documents</b></button>
+  </div>
+
+  <section id="opsView" class="ops-view">
+    <div class="ops-loading">Loading workshop data…</div>
+  </section>
+</main>
+
+<div id="scannerModal" class="scanner-modal hidden">
+  <div class="scanner-card">
+    <div class="section-heading"><h2>Scan barcode</h2><button class="text-btn" onclick="closeScanner()">Close</button></div>
+    <video id="scannerVideo" playsinline muted></video>
+    <p id="scannerMessage" class="muted">Point the camera at a barcode.</p>
+    <label>Barcode / part number<input id="scannerManual" autocomplete="off" placeholder="Enter manually"></label>
+    <button class="primary big" onclick="useManualBarcode()">Use code</button>
+  </div>
+</div>
+
+<script src="pin.js?v=10"></script>
+<script src="operations.js?v=13"></script>
+</body>
+</html>
