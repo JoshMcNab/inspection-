@@ -29,7 +29,7 @@
     const actions=h.querySelector('.header-actions');
     if(actions&&!$('uawHeaderBellV25')){
       const b=document.createElement('button');
-      b.id='uawHeaderBellV25';b.type='button';b.className='uaw-header-bell';b.setAttribute('aria-label','Customer notifications');b.textContent='♧';
+      b.id='uawHeaderBellV25';b.type='button';b.className='uaw-header-bell';b.setAttribute('aria-label','Customer notifications');b.textContent='🔔';
       b.onclick=()=>goOperations('notifications');
       actions.insertBefore(b,actions.firstChild);
     }
