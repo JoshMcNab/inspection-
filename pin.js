@@ -113,20 +113,21 @@
 
 (()=>{
   const scripts=[
-    ['progress-v16.js?v=20','progressV16'],
-    ['quote-revision-v18.js?v=20','quoteRevisionV18'],
-    ['offline-v20.js?v=20','offlineV20'],
-    ['customer-notify-v20.js?v=20','notifyV20'],
-    ['monitor-v20.js?v=20','monitorV20']
+    ['progress-v16.js?v=21','progressV16'],
+    ['quote-revision-v18.js?v=21','quoteRevisionV18'],
+    ['offline-v20.js?v=21','offlineV20'],
+    ['customer-notify-v20.js?v=21','notifyV20'],
+    ['notification-context-v21.js?v=21','notifyContextV21'],
+    ['monitor-v20.js?v=21','monitorV20']
   ];
   scripts.forEach(([src,key])=>{if(document.querySelector(`script[data-${key}]`))return;const s=document.createElement('script');s.src=src;s.dataset[key]='1';document.head.appendChild(s)});
 })();
 
 (()=>{
   if(!document.querySelector('link[data-desktop-v19]')){
-    const l=document.createElement('link');l.rel='stylesheet';l.href='desktop-v19.css?v=20';l.dataset.desktopV19='1';document.head.appendChild(l);
+    const l=document.createElement('link');l.rel='stylesheet';l.href='desktop-v19.css?v=21';l.dataset.desktopV19='1';document.head.appendChild(l);
   }
   if(!document.querySelector('script[data-device-layout-v19]')){
-    const s=document.createElement('script');s.src='device-layout-v19.js?v=20';s.dataset.deviceLayoutV19='1';document.head.appendChild(s);
+    const s=document.createElement('script');s.src='device-layout-v19.js?v=21';s.dataset.deviceLayoutV19='1';document.head.appendChild(s);
   }
 })();
