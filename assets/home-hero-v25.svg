@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1426 724" role="img" aria-label="Ultimate Automotive Works vehicle inspection workshop banner">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#05080d"/>
+      <stop offset="0.48" stop-color="#08111c"/>
+      <stop offset="1" stop-color="#0b0b12"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d1722"/>
+      <stop offset="1" stop-color="#03060a"/>
+    </linearGradient>
+    <linearGradient id="car" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#171c25"/>
+      <stop offset="0.55" stop-color="#080c12"/>
+      <stop offset="1" stop-color="#020407"/>
+    </linearGradient>
+    <radialGradient id="redGlow">
+      <stop offset="0" stop-color="#ff1c2b" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ff1c2b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="blueGlow">
+      <stop offset="0" stop-color="#8ad7ff" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#2d8cff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="redBlur"><feGaussianBlur stdDeviation="18"/></filter>
+    <filter id="blueBlur"><feGaussianBlur stdDeviation="12"/></filter>
+    <filter id="shadow"><feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#000" flood-opacity="0.55"/></filter>
+    <clipPath id="round"><rect width="1426" height="724" rx="42"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#round)">
+    <rect width="1426" height="724" fill="url(#bg)"/>
+
+    <!-- workshop structure -->
+    <rect x="0" y="0" width="1426" height="170" fill="#070b12"/>
+    <g stroke="#172332" stroke-width="10" opacity="0.9">
+      <path d="M0 96H1426"/>
+      <path d="M150 0V505"/><path d="M370 0V510"/><path d="M690 0V510"/><path d="M1000 0V510"/><path d="M1270 0V510"/>
+      <path d="M0 28L1426 28"/><path d="M0 140L1426 140"/>
+    </g>
+    <g stroke="#29394b" stroke-width="4" opacity="0.8">
+      <path d="M30 0L420 510"/><path d="M300 0L660 510"/><path d="M1040 0L790 510"/><path d="M1320 0L990 510"/>
+    </g>
+
+    <!-- neon lights -->
+    <g>
+      <rect x="82" y="112" width="12" height="360" rx="6" fill="#ff1f2d"/>
+      <rect x="80" y="112" width="16" height="360" rx="8" fill="#ff1f2d" opacity="0.55" filter="url(#redBlur)"/>
+      <rect x="493" y="90" width="11" height="390" rx="6" fill="#ff1f2d"/>
+      <rect x="491" y="90" width="15" height="390" rx="8" fill="#ff1f2d" opacity="0.5" filter="url(#redBlur)"/>
+      <rect x="1058" y="94" width="9" height="285" rx="5" fill="#ff1f2d" opacity="0.75"/>
+    </g>
+    <g stroke="#d9f5ff" stroke-linecap="round">
+      <path d="M225 72L347 50" stroke-width="9"/>
+      <path d="M575 52L702 39" stroke-width="9"/>
+      <path d="M875 50L1000 44" stroke-width="8"/>
+      <path d="M1140 57L1260 66" stroke-width="8"/>
+    </g>
+    <g stroke="#62b9ff" stroke-linecap="round" opacity="0.34" filter="url(#blueBlur)">
+      <path d="M225 72L347 50" stroke-width="22"/>
+      <path d="M575 52L702 39" stroke-width="22"/>
+      <path d="M875 50L1000 44" stroke-width="20"/>
+    </g>
+
+    <!-- floor and reflections -->
+    <path d="M0 468H1426V724H0Z" fill="url(#floor)"/>
+    <g opacity="0.34" filter="url(#redBlur)">
+      <ellipse cx="160" cy="570" rx="160" ry="34" fill="#ff1423"/>
+      <ellipse cx="495" cy="584" rx="150" ry="33" fill="#ff1423"/>
+      <ellipse cx="1100" cy="600" rx="145" ry="26" fill="#ff1423"/>
+    </g>
+    <g stroke="#1a2736" stroke-width="3" opacity="0.75">
+      <path d="M0 510H1426"/><path d="M0 566H1426"/><path d="M0 626H1426"/><path d="M0 686H1426"/>
+      <path d="M250 468L120 724"/><path d="M515 468L430 724"/><path d="M760 468L760 724"/><path d="M1010 468L1120 724"/><path d="M1230 468L1420 724"/>
+    </g>
+
+    <!-- right wall and message -->
+    <rect x="1160" y="126" width="210" height="220" rx="8" fill="#0b1119" opacity="0.92" stroke="#1a2738"/>
+    <text x="1194" y="178" fill="#71839a" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="29">KEEPING</text>
+    <text x="1194" y="214" fill="#71839a" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="29">VEHICLES</text>
+    <text x="1194" y="250" fill="#71839a" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="29">MOVING</text>
+
+    <!-- stylised car front -->
+    <g filter="url(#shadow)">
+      <path d="M1170 264C1268 239 1351 245 1426 276V612C1362 625 1288 624 1219 604C1184 594 1157 570 1147 535L1117 426C1100 364 1119 296 1170 264Z" fill="url(#car)" stroke="#18283c" stroke-width="4"/>
+      <path d="M1198 289C1278 269 1352 273 1426 301" fill="none" stroke="#ef2332" stroke-width="7" opacity="0.85"/>
+      <path d="M1190 424C1240 392 1303 384 1364 392L1402 398L1376 471L1210 462Z" fill="#0c1927" stroke="#21445f" stroke-width="4"/>
+      <path d="M1212 416C1267 400 1322 399 1369 407L1348 451L1223 446Z" fill="#d7f2ff" opacity="0.95"/>
+      <path d="M1220 421C1270 407 1312 408 1354 414L1337 444L1229 439Z" fill="#73c8ff"/>
+      <ellipse cx="1292" cy="430" rx="105" ry="46" fill="url(#blueGlow)" opacity="0.55" filter="url(#blueBlur)"/>
+      <path d="M1167 523H1410" stroke="#1b2b40" stroke-width="9"/>
+      <path d="M1206 570H1386" stroke="#22364e" stroke-width="9"/>
+    </g>
+
+    <!-- brand logo -->
+    <image href="../logo.png" x="62" y="122" width="590" height="374" preserveAspectRatio="xMidYMid meet" style="mix-blend-mode:screen"/>
+
+    <!-- copy -->
+    <g font-family="Arial,Helvetica,sans-serif">
+      <text x="718" y="188" fill="#ff3340" font-size="27" font-weight="800" letter-spacing="10">WORKSHOP</text>
+      <text x="718" y="275" fill="#ffffff" font-size="77" font-weight="900" letter-spacing="1">VEHICLE</text>
+      <text x="718" y="355" fill="#ffffff" font-size="77" font-weight="900" letter-spacing="1">INSPECTION</text>
+      <path d="M718 389H778" stroke="#ef2332" stroke-width="6"/>
+      <text x="718" y="443" fill="#f4f7fb" font-size="25" font-weight="700" letter-spacing="5">FAST</text>
+      <circle cx="824" cy="434" r="5" fill="#ef2332"/>
+      <text x="848" y="443" fill="#f4f7fb" font-size="25" font-weight="700" letter-spacing="4">RELIABLE</text>
+      <circle cx="1026" cy="434" r="5" fill="#ef2332"/>
+      <text x="1050" y="443" fill="#f4f7fb" font-size="25" font-weight="700" letter-spacing="3">PROFESSIONAL</text>
+      <text x="718" y="498" fill="#d6dee9" font-size="25" font-weight="700" letter-spacing="4">BUILT FOR YOUR IPHONE</text>
+    </g>
+
+    <!-- red corner slashes -->
+    <g fill="#e91828" opacity="0.9">
+      <path d="M1322 615L1365 546H1400L1357 615Z"/>
+      <path d="M1364 615L1406 546H1426V581L1405 615Z"/>
+    </g>
+  </g>
+</svg>
