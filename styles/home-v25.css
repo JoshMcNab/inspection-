@@ -1,0 +1,218 @@
+/* Ultimate Automotive Works home dashboard — Concept hybrid v25.2.
+   Uses the original logo.png; the master logo asset is never modified. */
+body.uaw-home-active{padding-bottom:max(24px,env(safe-area-inset-bottom))}
+body.uaw-home-active .offline-status-v20{display:none!important}
+
+#home.uaw-home-v25{padding-bottom:8px}
+#home.uaw-home-v25 .workshop-banner{
+  position:relative;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:minmax(128px,44%) minmax(0,1fr);
+  align-items:center;
+  gap:12px;
+  min-height:250px;
+  margin-bottom:16px;
+  padding:20px 18px;
+  border:1px solid #31415a;
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 14% 54%,rgba(239,43,45,.28),transparent 36%),
+    radial-gradient(circle at 92% 38%,rgba(28,96,165,.22),transparent 35%),
+    linear-gradient(135deg,#080b12 0%,#0a1320 48%,#180b10 100%);
+  box-shadow:0 18px 42px rgba(0,0,0,.46),inset 0 1px rgba(255,255,255,.035);
+}
+#home.uaw-home-v25 .workshop-banner::before{
+  content:"";
+  position:absolute;
+  inset:-20%;
+  background:
+    linear-gradient(113deg,transparent 0 39%,rgba(239,43,45,.24) 40%,rgba(239,43,45,.04) 47%,transparent 49%),
+    radial-gradient(ellipse at 100% 70%,rgba(239,43,45,.18),transparent 28%);
+  pointer-events:none;
+}
+#home.uaw-home-v25 .workshop-banner::after{display:none!important}
+#home.uaw-home-v25 .banner-left,#home.uaw-home-v25 .banner-copy{position:relative;z-index:1}
+#home.uaw-home-v25 .banner-left{display:flex;align-items:center;justify-content:center;min-width:0;background:transparent}
+#home.uaw-home-v25 .banner-logo{
+  display:block;
+  width:100%;
+  max-width:260px;
+  height:auto;
+  object-fit:contain;
+  background:transparent!important;
+  mix-blend-mode:screen;
+  filter:contrast(1.12) brightness(1.08) drop-shadow(0 12px 18px rgba(0,0,0,.3));
+}
+#home.uaw-home-v25 .banner-copy{min-width:0;padding-left:12px}
+#home.uaw-home-v25 .banner-kicker{margin:0 0 8px;color:#ff4d52;font-size:11px;font-weight:900;letter-spacing:.32em;text-transform:uppercase}
+#home.uaw-home-v25 .banner-copy h1{margin:0 0 8px;font-size:clamp(30px,7.8vw,47px);line-height:.98;letter-spacing:-.03em;text-transform:none;color:#fff}
+#home.uaw-home-v25 .banner-tagline{margin:0;color:#cbd5e1;font-size:13px;letter-spacing:.01em;text-transform:none}
+#home.uaw-home-v25 .banner-tagline span{color:#ef2b2d;font-weight:900}
+#home.uaw-home-v25 .banner-sub{margin:13px 0 0;padding-top:11px;border-top:2px solid #ef2b2d;width:max-content;max-width:100%;color:#cbd5e1;font-size:12px;letter-spacing:.01em;text-transform:none}
+
+#home.uaw-home-v25>.uaw-primary-action,#home.uaw-home-v25>.uaw-secondary-action{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:66px;
+  margin:10px 0;
+  padding:15px 58px 15px 20px;
+  border-radius:18px;
+  font-size:18px;
+  letter-spacing:-.01em;
+}
+#home.uaw-home-v25>.uaw-primary-action::after,#home.uaw-home-v25>.uaw-secondary-action::after{
+  content:"›";
+  position:absolute;
+  right:22px;
+  top:50%;
+  transform:translateY(-52%);
+  font-size:34px;
+  font-weight:400;
+  line-height:1;
+}
+#home.uaw-home-v25>.uaw-primary-action{background:linear-gradient(135deg,#ff2b32,#d60d18);box-shadow:0 12px 28px rgba(212,12,25,.28)}
+#home.uaw-home-v25>.uaw-secondary-action{background:linear-gradient(135deg,#111d2d,#16263b);border-color:#31415a;box-shadow:0 10px 24px rgba(0,0,0,.24)}
+
+#home.uaw-home-v25 .workshop-launch{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+  margin:18px 0 12px!important;
+}
+#home.uaw-home-v25 .workshop-launch .uaw-home-sentinel{display:none!important}
+#home.uaw-home-v25 .uaw-dashboard-card{
+  --card-accent:#3b82f6;
+  --card-glow:rgba(59,130,246,.20);
+  position:relative;
+  isolation:isolate;
+  min-width:0;
+  min-height:136px;
+  overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--card-accent) 75%,#334155)!important;
+  border-radius:18px!important;
+  padding:18px 46px 16px 16px!important;
+  display:grid!important;
+  grid-template-columns:48px minmax(0,1fr)!important;
+  grid-template-rows:auto auto!important;
+  column-gap:10px!important;
+  row-gap:4px!important;
+  align-content:center!important;
+  text-align:left!important;
+  color:#fff!important;
+  background:
+    radial-gradient(circle at 0% 50%,var(--card-glow),transparent 58%),
+    radial-gradient(circle at 100% 110%,rgba(16,78,140,.19),transparent 48%),
+    linear-gradient(145deg,#0d1522,#111b29 62%,#0b1420)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.035),0 10px 22px rgba(0,0,0,.25),0 0 18px var(--card-glow)!important;
+}
+#home.uaw-home-v25 .uaw-dashboard-card::before{
+  content:"";
+  position:absolute;
+  left:-26px;
+  bottom:-38px;
+  width:105px;
+  height:105px;
+  border:16px solid color-mix(in srgb,var(--card-accent) 18%,transparent);
+  border-radius:50%;
+  opacity:.5;
+  z-index:-1;
+}
+#home.uaw-home-v25 .uaw-dashboard-card::after{
+  content:"›";
+  position:absolute;
+  right:12px;
+  top:50%;
+  width:32px;
+  height:32px;
+  transform:translateY(-50%);
+  border:1px solid rgba(148,163,184,.20);
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:rgba(20,31,48,.80);
+  color:#fff;
+  font-size:27px;
+  font-weight:300;
+  line-height:1;
+}
+#home.uaw-home-v25 .uaw-dashboard-card .uaw-card-icon{
+  grid-row:1/3;
+  align-self:center;
+  display:grid;
+  place-items:center;
+  width:45px;
+  height:45px;
+  font-size:32px;
+  line-height:1;
+  filter:drop-shadow(0 5px 9px rgba(0,0,0,.28));
+}
+#home.uaw-home-v25 .uaw-dashboard-card b{align-self:end;font-size:15px;line-height:1.15;color:#fff}
+#home.uaw-home-v25 .uaw-dashboard-card small{align-self:start;color:#9fb0c7;font-size:11px;line-height:1.25;margin:0}
+#home.uaw-home-v25 .uaw-dashboard-card[data-accent="red"]{--card-accent:#ff2b32;--card-glow:rgba(255,43,50,.20)}
+#home.uaw-home-v25 .uaw-dashboard-card[data-accent="blue"]{--card-accent:#1495ff;--card-glow:rgba(20,149,255,.20)}
+#home.uaw-home-v25 .uaw-dashboard-card[data-accent="neutral"]{--card-accent:#8191a8;--card-glow:rgba(129,145,168,.10)}
+#home.uaw-home-v25 .uaw-dashboard-card[data-accent="purple"]{--card-accent:#8b5cf6;--card-glow:rgba(139,92,246,.25)}
+#home.uaw-home-v25 .uaw-dashboard-card.uaw-admin-card{grid-column:1/-1;min-height:116px;grid-template-columns:56px minmax(0,1fr);background:radial-gradient(circle at 0 50%,rgba(139,92,246,.25),transparent 48%),radial-gradient(circle at 92% 65%,rgba(37,99,235,.27),transparent 39%),linear-gradient(135deg,#16102c,#111d3e 62%,#0d1527)!important}
+
+#home.uaw-home-v25 .uaw-home-legacy{display:none!important}
+#home.uaw-home-v25 .uaw-home-status{
+  margin:18px 0 4px;
+  border:1px solid #2e4058;
+  border-radius:18px;
+  padding:15px 16px;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:12px;
+  background:linear-gradient(145deg,#0d1825,#0b1420);
+  box-shadow:0 12px 28px rgba(0,0,0,.25);
+}
+#home.uaw-home-v25 .uaw-status-dot{width:15px;height:15px;border-radius:50%;background:#22c55e;box-shadow:0 0 16px rgba(34,197,94,.75)}
+#home.uaw-home-v25 .uaw-home-status.is-offline .uaw-status-dot{background:#f59e0b;box-shadow:0 0 16px rgba(245,158,11,.6)}
+#home.uaw-home-v25 .uaw-home-status.has-queue .uaw-status-dot{background:#ef4444;box-shadow:0 0 16px rgba(239,68,68,.6)}
+#home.uaw-home-v25 .uaw-status-copy b,#home.uaw-home-v25 .uaw-status-copy small{display:block}
+#home.uaw-home-v25 .uaw-status-copy b{font-size:14px;color:#fff}
+#home.uaw-home-v25 .uaw-status-copy small{margin-top:2px;color:#91a3bb;font-size:10px}
+#home.uaw-home-v25 .uaw-status-brand{text-align:right;color:#93a6bd;font-size:9px;line-height:1.25;letter-spacing:.08em;text-transform:uppercase}
+#home.uaw-home-v25 .uaw-status-brand b{display:block;color:#fff;font-size:9px;letter-spacing:.12em;margin-top:3px}
+#home.uaw-home-v25 .uaw-home-version{text-align:right;color:#64748b;font-size:9px;margin:6px 4px 0}
+
+header.uaw-header-v25{height:auto;min-height:68px;padding-top:6px;padding-bottom:6px}
+header.uaw-header-v25 .app-name{line-height:1.08}
+header.uaw-header-v25 .app-name strong{display:block;color:#fff;font-size:15px;font-weight:850}
+header.uaw-header-v25 .app-name small{display:block;margin-top:4px;color:#8ea0b7;font-size:10px;font-weight:500;letter-spacing:.01em}
+header.uaw-header-v25 .uaw-header-bell{position:relative;background:none;border:0;color:#fff;font-size:21px;padding:6px}
+header.uaw-header-v25 .uaw-header-bell::after{content:"";position:absolute;right:4px;top:4px;width:7px;height:7px;border-radius:50%;background:#ef2b2d;box-shadow:0 0 0 2px #0b1220}
+
+@media(max-width:430px){
+  #home.uaw-home-v25 .workshop-banner{grid-template-columns:minmax(112px,42%) minmax(0,1fr);min-height:222px;padding:16px 13px;gap:7px}
+  #home.uaw-home-v25 .banner-copy{padding-left:7px}
+  #home.uaw-home-v25 .banner-logo{transform:scale(1.04)}
+  #home.uaw-home-v25 .banner-kicker{font-size:9px;letter-spacing:.24em;margin-bottom:6px}
+  #home.uaw-home-v25 .banner-copy h1{font-size:28px}
+  #home.uaw-home-v25 .banner-tagline,#home.uaw-home-v25 .banner-sub{font-size:10px}
+  #home.uaw-home-v25 .uaw-dashboard-card{min-height:126px;padding:15px 40px 14px 12px!important;grid-template-columns:42px minmax(0,1fr)!important;column-gap:8px!important}
+  #home.uaw-home-v25 .uaw-dashboard-card .uaw-card-icon{width:40px;height:40px;font-size:29px}
+  #home.uaw-home-v25 .uaw-dashboard-card b{font-size:14px}
+  #home.uaw-home-v25 .uaw-dashboard-card small{font-size:10px}
+  #home.uaw-home-v25 .uaw-dashboard-card::after{right:9px;width:29px;height:29px;font-size:24px}
+  #home.uaw-home-v25 .uaw-home-status{grid-template-columns:auto 1fr;padding:13px 14px}
+  #home.uaw-home-v25 .uaw-status-brand{grid-column:1/-1;text-align:left;padding-left:27px;border-top:1px solid #223047;padding-top:9px}
+}
+
+@media(max-width:350px){
+  #home.uaw-home-v25 .workshop-launch{grid-template-columns:1fr!important}
+  #home.uaw-home-v25 .uaw-dashboard-card.uaw-admin-card{grid-column:auto}
+}
+
+@media(min-width:900px){
+  #home.uaw-home-v25 .workshop-banner{min-height:320px;grid-template-columns:minmax(260px,42%) 1fr;padding:28px 34px}
+  #home.uaw-home-v25 .banner-copy h1{font-size:58px}
+  #home.uaw-home-v25 .workshop-launch{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important}
+  #home.uaw-home-v25 .uaw-dashboard-card{min-height:142px}
+  #home.uaw-home-v25 .uaw-dashboard-card.uaw-admin-card{grid-column:1/-1}
+  #home.uaw-home-v25>.uaw-primary-action,#home.uaw-home-v25>.uaw-secondary-action{max-width:none}
+}
