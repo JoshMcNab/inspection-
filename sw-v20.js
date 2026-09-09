@@ -1,10 +1,10 @@
-const CACHE='ultimate-workshop-v25-1';
+const CACHE='ultimate-workshop-v25-2';
 const CORE=[
   'index.html','operations.html','approval.html','portal.html',
-  'style.css','pin.css','workshop.css','operations.css','quote-v12.css','upgrade-v14.css','progress-v16.css','desktop-v19.css','styles/theme-v25.css','styles/visual-polish-v25.css',
+  'style.css','pin.css','workshop.css','operations.css','quote-v12.css','upgrade-v14.css','progress-v16.css','desktop-v19.css','styles/theme-v25.css','styles/visual-polish-v25.css','styles/home-v25.css',
   'app.js','workshop.js','operations.js','pin.js','quote-v12.js','upgrade-v14.js','restore-v14.js','progress-v16.js','ops-progress-v16.js',
   'quote-revision-v18.js','offline-v20.js','customer-notify-v20.js','notification-context-v21.js','monitor-v20.js','repair-data-v23.js','parts-catalog-v24.js','device-layout-v19.js',
-  'src/core/config-v25.js','src/core/api-v25.js','src/core/auth-v25.js','src/core/features-v25.js','src/features/loyalty/guard-v25.js',
+  'src/core/config-v25.js','src/core/api-v25.js','src/core/auth-v25.js','src/core/features-v25.js','src/features/loyalty/guard-v25.js','src/features/home/home-v25.js',
   'logo.png','manifest.json'
 ];
 const scoped=p=>new URL(p,self.registration.scope).href;
