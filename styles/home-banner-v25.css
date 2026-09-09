@@ -1,0 +1,33 @@
+/* v25.3 approved workshop hero banner. Lower dashboard layout remains unchanged. */
+#home.uaw-home-v25 .workshop-banner{
+  display:block!important;
+  width:100%;
+  aspect-ratio:713/362;
+  min-height:0!important;
+  height:auto!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:1px solid #31415a!important;
+  border-radius:24px!important;
+  background:#05080d url('../assets/home-hero-v25.svg') center/cover no-repeat!important;
+  box-shadow:0 18px 42px rgba(0,0,0,.46),inset 0 1px rgba(255,255,255,.035)!important;
+}
+#home.uaw-home-v25 .workshop-banner::before,
+#home.uaw-home-v25 .workshop-banner::after{display:none!important}
+#home.uaw-home-v25 .workshop-banner .banner-left,
+#home.uaw-home-v25 .workshop-banner .banner-copy{display:none!important}
+
+@media(max-width:430px){
+  #home.uaw-home-v25 .workshop-banner{
+    aspect-ratio:713/362;
+    border-radius:20px!important;
+    background-position:center center!important;
+  }
+}
+
+@media(min-width:900px){
+  #home.uaw-home-v25 .workshop-banner{
+    aspect-ratio:713/300;
+    background-position:center 48%!important;
+  }
+}
