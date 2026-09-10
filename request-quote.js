@@ -1,7 +1,7 @@
 (()=>{
 const GATEWAY='https://rvkutsfyglopbhrnbotx.supabase.co/functions/v1/workshop-gateway';
-const PRIVACY_VERSION='UAW-PRIVACY-2026-09-10-1';
-const QUOTE_REQUEST_VERSION='UAW-QUOTE-REQUEST-2026-09-10-1';
+const PRIVACY_VERSION='UAW-PRIVACY-2026-09-10-2';
+const QUOTE_REQUEST_VERSION='UAW-QUOTE-REQUEST-2026-09-10-2';
 const form=document.getElementById('quoteRequestForm');
 const msg=document.getElementById('quoteFormMessage');
 const submit=document.getElementById('submitQuoteRequest');
