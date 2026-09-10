@@ -1,6 +1,6 @@
 const ENDPOINT="https://rvkutsfyglopbhrnbotx.supabase.co/functions/v1/workshop-gateway?service=quotes";
-const LEGAL_VERSION="UAW-LEGAL-2026-09-10-3";
-const TERMS_VERSION="UAW-TERMS-2026-09-10-3";
+const LEGAL_VERSION="UAW-LEGAL-2026-09-10-4";
+const TERMS_VERSION="UAW-TERMS-2026-09-10-4";
 const PRIVACY_VERSION="UAW-PRIVACY-2026-09-10-3";
 const CANCELLATION_VERSION="UAW-CANCEL-2026-09-10-3";
 const $=id=>document.getElementById(id);
