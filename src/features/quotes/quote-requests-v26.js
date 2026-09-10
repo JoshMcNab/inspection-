@@ -10,12 +10,13 @@
 
   function ensureStyle(){
     if(document.querySelector('link[data-uaw-quote-requests]'))return;
-    const l=document.createElement('link');l.rel='stylesheet';l.href=`styles/quote-requests-v26.css?v=${encodeURIComponent(cfg?.assetVersion||'26.0')}`;l.dataset.uawQuoteRequests='1';document.head.appendChild(l);
+    const l=document.createElement('link');l.rel='stylesheet';l.href=`styles/quote-requests-v26.css?v=${encodeURIComponent(cfg?.assetVersion||'26.2')}`;l.dataset.uawQuoteRequests='1';document.head.appendChild(l);
   }
   async function api(action,payload={}){return window.WorkshopAPI.request('quote_requests',action,payload)}
   function setActive(){document.querySelectorAll('#opsNav button').forEach(b=>b.classList.toggle('active',b.dataset.tool==='quote-requests'))}
   function setUrl(){const u=new URL(location.href);u.searchParams.set('tool','quote-requests');history.replaceState(null,'',u)}
   function normaliseWhatsApp(phone){let d=String(phone||'').replace(/\D/g,'');if(d.startsWith('0'))d='44'+d.slice(1);return d}
+  function addressText(r){return [r.address,r.town_city,r.postcode].filter(Boolean).join(', ')}
 
   function injectNav(){
     const nav=$('opsNav');if(!nav||nav.querySelector('[data-tool="quote-requests"]'))return;
@@ -39,10 +40,11 @@
   function requestCard(r){
     const ref=`QR-${String(r.id||'').slice(0,8).toUpperCase()}`;
     const converted=r.status==='converted'||r.job_id;
+    const address=addressText(r)||'—';
     return `<article class="qr-request ${r.status==='new'?'is-new':''}" data-id="${esc(r.id)}">
       <div class="qr-request-head"><div><p class="qr-reference">${esc(ref)} · ${esc(r.request_type||'General quote')}</p><h3>${esc(r.registration||'Vehicle')} · ${esc(r.make_model||'Vehicle details not supplied')}</h3><p>${esc(r.customer_name||'Customer')} · ${esc(r.source==='portal'?'Customer portal':'Public request')}</p></div><span class="qr-time">${fmt(r.created_at)}</span></div>
       <div class="qr-request-body">
-        <div class="qr-meta"><div><span>Customer</span><b>${esc(r.customer_name||'—')}</b></div><div><span>Preferred contact</span><b>${esc(r.preferred_contact||'—')}</b></div><div><span>Phone</span><b>${esc(r.phone||'—')}</b></div><div><span>Email</span><b>${esc(r.email||'—')}</b></div><div><span>Vehicle</span><b>${esc([r.make_model,r.year].filter(Boolean).join(' · ')||'—')}</b></div><div><span>Mileage</span><b>${r.mileage?`${Number(r.mileage).toLocaleString()} miles`:'—'}</b></div></div>
+        <div class="qr-meta"><div><span>Customer</span><b>${esc(r.customer_name||'—')}</b></div><div><span>Preferred contact</span><b>${esc(r.preferred_contact||'—')}</b></div><div><span>Phone</span><b>${esc(r.phone||'—')}</b></div><div><span>Email</span><b>${esc(r.email||'—')}</b></div><div class="qr-address"><span>Address</span><b>${esc(address)}</b></div><div><span>Vehicle</span><b>${esc([r.make_model,r.year].filter(Boolean).join(' · ')||'—')}</b></div><div><span>Mileage</span><b>${r.mileage?`${Number(r.mileage).toLocaleString()} miles`:'—'}</b></div></div>
         <div class="qr-description">${esc(r.description||'')}</div>
         <div class="qr-contact-actions">${contactLinks(r)}</div>
         ${photos(r)}
