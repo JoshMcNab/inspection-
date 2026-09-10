@@ -7,7 +7,7 @@
 <title>Quote Approval · Ultimate Automotive Works</title>
 <link rel="stylesheet" href="style.css?v=10">
 <link rel="stylesheet" href="approval.css?v=18">
-<link rel="stylesheet" href="legal.css?v=26.4">
+<link rel="stylesheet" href="legal.css?v=26.6">
 </head>
 <body>
 <main class="approval-main"><section class="approval-card">
@@ -28,12 +28,19 @@
   </div>
   <button id="approveQuoteBtn" class="primary big" onclick="submitApproval(true)">✓ Approve quote</button>
   <button class="secondary big decline-button" onclick="submitApproval(false)">Decline quote</button>
-  <p class="approval-note">Your decision, approved amount, maximum authorised amount, legal acknowledgement and date/time are recorded against the workshop job.</p>
+  <p class="approval-note">Your decision, approved amount, maximum authorised amount, legal acknowledgements, signature and date/time are recorded against the workshop job.</p>
 </div>
 <p id="approvalMessage" class="approval-message"></p>
+<section id="approvalReceipt" class="approval-receipt hidden" aria-live="polite">
+  <p class="eyebrow">CUSTOMER RECORD</p>
+  <h2>Approval receipt</h2>
+  <div id="approvalReceiptDetails"></div>
+  <button type="button" class="secondary big" onclick="window.print()">Print / Save this record</button>
+  <p class="approval-note">Keep this page or save it for your records. The workshop also keeps the recorded approval and legal acknowledgement.</p>
+</section>
 <footer class="customer-legal-footer">Ultimate Automotive Works · Repair · Maintenance · Diagnostics<div class="legal-footer-links"><a href="privacy.html">Privacy Notice</a><a href="terms.html">Workshop Terms</a><a href="cancellation.html">Cancellation Information</a><a href="complaints.html">Complaints</a></div></footer>
 </section></main>
 <script src="public-gateway.js?v=16"></script>
-<script src="approval.js?v=26.5"></script>
+<script src="approval.js?v=26.6"></script>
 </body>
 </html>
