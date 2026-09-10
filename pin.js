@@ -18,8 +18,15 @@
     });
     loaded.set(path,task);return task;
   }
+  function ensureLegalDisclosure(){
+    const gate=document.getElementById('pinGate');if(!gate||gate.querySelector('[data-uaw-company-disclosure]'))return;
+    const box=document.createElement('div');box.dataset.uawCompanyDisclosure='1';box.style.cssText='position:absolute;left:16px;right:16px;bottom:max(10px,env(safe-area-inset-bottom));text-align:center;font-size:11px;line-height:1.45;opacity:.72;z-index:2';
+    box.innerHTML='Ultimate Automotive Works LTD · Company No. 14995808 · Registered in England and Wales<br>Registered office: 9 Water Fir Drive, Harworth, Doncaster, England, DN11 8ND<br><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="cancellation.html">Cancellation</a> · <a href="complaints.html">Complaints</a>';
+    gate.appendChild(box);
+  }
 
   async function boot(){
+    ensureLegalDisclosure();
     loadStyle('styles/theme-v25.css');
     loadStyle('styles/visual-polish-v25.css');
     loadStyle('styles/home-banner-v25.css');
