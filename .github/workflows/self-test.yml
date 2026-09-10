@@ -1,0 +1,58 @@
+name: Workshop full self-test
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_run:
+    workflows: ['pages build and deployment']
+    types: [completed]
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: workshop-production-self-test
+  cancel-in-progress: false
+
+jobs:
+  self-test:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      UAW_BASE_URL: https://app.ultimateautomotiveworks.com
+      UAW_SELFTEST_URL: https://rvkutsfyglopbhrnbotx.supabase.co/functions/v1/workshop-self-test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install test runner
+        run: npm install --no-audit --no-fund
+
+      - name: Install production browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Run full workshop self-test
+        run: npm run test:self
+
+      - name: Always remove automated test data
+        if: always()
+        run: node tests/cleanup.mjs
+
+      - name: Upload failure report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workshop-self-test-report-${{ github.run_id }}
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 14
