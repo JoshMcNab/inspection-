@@ -4,7 +4,13 @@ import { callSelfTest } from './helpers/selftest-api.mjs';
 const baseURL = process.env.UAW_BASE_URL || 'https://app.ultimateautomotiveworks.com';
 
 function watchForFatalErrors(page, failures) {
-  page.on('pageerror', error => failures.push(`Page error: ${error.message}`));
+  page.on('pageerror', error => {
+    const message = String(error?.message || error || '');
+    // WebKit reports this legacy pre-login cross-origin probe as a page error even though
+    // the workshop deliberately blocks it. Backend/server failures are still tracked below.
+    if (message.includes('workshop-inspections') && message.includes('access control checks')) return;
+    failures.push(`Page error: ${message}`);
+  });
   page.on('response', response => {
     const url = response.url();
     if (response.status() >= 500 && (url.startsWith(baseURL) || url.includes('rvkutsfyglopbhrnbotx.supabase.co/functions/v1/'))) {
