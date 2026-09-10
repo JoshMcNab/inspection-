@@ -1,12 +1,11 @@
 name: Workshop full self-test
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
   schedule:
     - cron: '17 3 * * *'
-  workflow_run:
-    workflows: ['pages build and deployment']
-    types: [completed]
 
 permissions:
   contents: read
@@ -18,9 +17,8 @@ concurrency:
 
 jobs:
   self-test:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     env:
       UAW_BASE_URL: https://app.ultimateautomotiveworks.com
       UAW_SELFTEST_URL: https://rvkutsfyglopbhrnbotx.supabase.co/functions/v1/workshop-self-test
@@ -32,6 +30,36 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      - name: Wait for this commit to be live on GitHub Pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_SHA: ${{ github.sha }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          node <<'NODE'
+          const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+          const headers = {
+            Authorization: `Bearer ${process.env.GH_TOKEN}`,
+            Accept: 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28'
+          };
+          const endpoint = `https://api.github.com/repos/${process.env.REPOSITORY}/actions/runs?head_sha=${process.env.TARGET_SHA}&per_page=30`;
+          for (let attempt = 1; attempt <= 30; attempt++) {
+            const response = await fetch(endpoint, { headers });
+            if (!response.ok) throw new Error(`GitHub Actions lookup failed (${response.status})`);
+            const data = await response.json();
+            const pages = data.workflow_runs?.find(run => run.name === 'pages build and deployment');
+            if (pages?.status === 'completed') {
+              if (pages.conclusion !== 'success') throw new Error(`Pages deployment ended with ${pages.conclusion}`);
+              console.log(`Pages deployment ${pages.id} is live for ${process.env.TARGET_SHA}.`);
+              process.exit(0);
+            }
+            console.log(`Waiting for Pages deployment (${attempt}/30)…`);
+            await sleep(10_000);
+          }
+          throw new Error('Timed out waiting for the matching GitHub Pages deployment.');
+          NODE
 
       - name: Install test runner
         run: npm install --no-audit --no-fund
