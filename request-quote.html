@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Request a Quote · Ultimate Automotive Works</title>
+<link rel="stylesheet" href="request-quote.css?v=26.0">
+</head>
+<body>
+<main class="quote-page">
+  <section class="quote-shell">
+    <header class="quote-brand">
+      <img src="logo.png?v=26.0" alt="Ultimate Automotive Works">
+      <div>
+        <p>ULTIMATE AUTOMOTIVE WORKS</p>
+        <h1>Request a Quote</h1>
+        <span>Repair · Maintenance · Diagnostics</span>
+      </div>
+    </header>
+
+    <div id="portalNotice" class="portal-notice hidden">Your vehicle details have been filled from your customer portal.</div>
+
+    <form id="quoteRequestForm" novalidate>
+      <section class="quote-card">
+        <p class="step">1 · YOUR DETAILS</p>
+        <div class="grid two">
+          <label>Full name <em>*</em><input id="qrName" autocomplete="name" maxlength="160" required></label>
+          <label>Preferred contact
+            <select id="qrPreferred">
+              <option value="phone">Phone</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="email">Email</option>
+            </select>
+          </label>
+          <label>Phone<input id="qrPhone" type="tel" autocomplete="tel" maxlength="80" placeholder="e.g. 07…"></label>
+          <label>Email<input id="qrEmail" type="email" autocomplete="email" maxlength="180" placeholder="name@example.com"></label>
+        </div>
+        <p class="hint">Please provide at least a phone number or email address.</p>
+      </section>
+
+      <section class="quote-card">
+        <p class="step">2 · VEHICLE</p>
+        <div class="grid two">
+          <label>Registration <em>*</em><input id="qrReg" autocapitalize="characters" autocomplete="off" maxlength="16" required placeholder="AB21 XYZ"></label>
+          <label>Make & model<input id="qrModel" maxlength="240" placeholder="e.g. Ford Transit"></label>
+          <label>Year<input id="qrYear" inputmode="numeric" maxlength="12" placeholder="2021"></label>
+          <label>Mileage<input id="qrMileage" inputmode="numeric" type="number" min="0" step="1" placeholder="45000"></label>
+        </div>
+      </section>
+
+      <section class="quote-card">
+        <p class="step">3 · WHAT DO YOU NEED?</p>
+        <label>Type of work
+          <select id="qrType">
+            <option>General quote</option>
+            <option>Service / maintenance</option>
+            <option>Brakes</option>
+            <option>Suspension / steering</option>
+            <option>Diagnostics / warning light</option>
+            <option>Engine / cooling</option>
+            <option>Exhaust / emissions</option>
+            <option>MOT repairs</option>
+            <option>Tyres</option>
+            <option>Other repair</option>
+          </select>
+        </label>
+        <label>Tell us what you would like quoted <em>*</em>
+          <textarea id="qrDescription" maxlength="8000" required placeholder="Describe the work, fault, warning message or symptoms. The more detail you give us, the easier it is to prepare the quote."></textarea>
+        </label>
+        <label class="photo-label">Photos <span>(optional, up to 3)</span>
+          <input id="qrPhotos" type="file" accept="image/*" capture="environment" multiple>
+        </label>
+        <div id="photoPreview" class="photo-preview"></div>
+      </section>
+
+      <section class="quote-card consent-card">
+        <label class="check"><input id="qrConsent" type="checkbox" required><span>I agree that Ultimate Automotive Works may contact me about this quote request.</span></label>
+        <p>Submitting this form is a request for an estimate only. No work is authorised until a quote is agreed with the workshop.</p>
+      </section>
+
+      <label class="website-field" aria-hidden="true">Website<input id="qrWebsite" tabindex="-1" autocomplete="off"></label>
+      <button id="submitQuoteRequest" class="submit-btn" type="submit">Send Quote Request <span>›</span></button>
+      <div id="quoteFormMessage" class="form-message" role="status" aria-live="polite"></div>
+    </form>
+
+    <section id="quoteSuccess" class="quote-success hidden">
+      <div class="success-icon">✓</div>
+      <p class="step">REQUEST RECEIVED</p>
+      <h2>Thank you</h2>
+      <p>Your quote request has been sent to Ultimate Automotive Works. We will review the details and contact you using your preferred method.</p>
+      <div class="reference">Reference <strong id="quoteReference"></strong></div>
+      <a href="request-quote.html?v=26.0" class="secondary-link">Send another request</a>
+    </section>
+
+    <footer>Ultimate Automotive Works · Repair · Maintenance · Diagnostics</footer>
+  </section>
+</main>
+<script src="request-quote.js?v=26.0"></script>
+</body>
+</html>
