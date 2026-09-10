@@ -14,7 +14,7 @@
     'repair-data-v23.js'
   ];
   const pageFeatures={
-    index:[...common,'src/features/home/home-v25.js'],
+    index:[...common,'src/features/home/home-v25.js','src/features/quotes/approval-share-fix-v26.js'],
     operations:[...common,'parts-catalog-v24.js','src/features/quotes/quote-requests-v26.js']
   };
 
