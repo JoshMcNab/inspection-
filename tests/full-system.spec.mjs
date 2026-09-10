@@ -6,8 +6,6 @@ const baseURL = process.env.UAW_BASE_URL || 'https://app.ultimateautomotiveworks
 function watchForFatalErrors(page, failures) {
   page.on('pageerror', error => {
     const message = String(error?.message || error || '');
-    // WebKit reports this legacy pre-login cross-origin probe as a page error even though
-    // the workshop deliberately blocks it. Backend/server failures are still tracked below.
     if (message.includes('workshop-inspections') && message.includes('access control checks')) return;
     failures.push(`Page error: ${message}`);
   });
@@ -52,15 +50,13 @@ async function reopenTestJob(page, registration) {
 
 async function openQuoteRequests(page) {
   await page.waitForSelector('#opsNav button[data-tool="quote-requests"]');
-  // operations.js performs an initial dashboard render after authentication. Wait for that
-  // one-time bootstrap to settle, then open Quote Requests through the same public UI hook.
   await page.waitForTimeout(900);
   await page.evaluate(() => window.showTool?.('quote-requests'));
   await expect(page.getByRole('heading', { name: 'Quote Requests' })).toBeVisible();
   await expect(page.locator('#quoteRequestList')).toBeVisible();
 }
 
-test('@smoke public pages, assets and form validation load cleanly', async ({ page, request }) => {
+test('@smoke public pages, legal notices, assets and form validation load cleanly', async ({ page, request }) => {
   const failures = [];
   watchForFatalErrors(page, failures);
 
@@ -70,9 +66,23 @@ test('@smoke public pages, assets and form validation load cleanly', async ({ pa
   await expect(page.locator('#qrAddress')).toBeVisible();
   await expect(page.locator('#qrTownCity')).toBeVisible();
   await expect(page.locator('#qrPostcode')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Privacy Notice' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Workshop Terms' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Cancellation Information' })).toBeVisible();
   await expect.poll(() => page.locator('.quote-brand img').evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
   await page.click('#submitQuoteRequest');
   await expect(page.locator('#quoteFormMessage')).toContainText('Please complete your name');
+
+  for (const [path, heading] of [
+    ['/privacy.html', 'Privacy Notice'],
+    ['/terms.html', 'Workshop Terms'],
+    ['/cancellation.html', 'Cancellation Information'],
+    ['/complaints.html', 'Complaints Procedure']
+  ]) {
+    response = await page.goto(`${path}?selftest=1`, { waitUntil: 'domcontentloaded' });
+    expect(response?.ok(), `${path} should load`).toBeTruthy();
+    await expect(page.getByRole('heading', { name: heading })).toBeVisible();
+  }
 
   response = await page.goto('/index.html?selftest=1', { waitUntil: 'domcontentloaded' });
   expect(response?.ok()).toBeTruthy();
@@ -83,7 +93,7 @@ test('@smoke public pages, assets and form validation load cleanly', async ({ pa
   expect(response?.ok()).toBeTruthy();
   await expect(page.locator('#pinGate')).toBeVisible();
 
-  for (const path of ['/manifest.json', '/sw-v20.js', '/logo.png']) {
+  for (const path of ['/manifest.json', '/sw-v20.js', '/logo.png', '/legal.css']) {
     const asset = await request.get(path);
     expect(asset.ok(), `${path} should be available`).toBeTruthy();
   }
@@ -179,7 +189,7 @@ test('iPhone production end-to-end workshop journey', async ({ page, context }, 
       await expect(page.locator('#approvalLinkInput')).toBeVisible();
     });
 
-    await test.step('Customer opens, signs and approves the secure quote link', async () => {
+    await test.step('Customer opens, signs, acknowledges terms and approves the secure quote link', async () => {
       const approvalUrl = await page.locator('#approvalLinkInput').inputValue();
       expect(approvalUrl).toContain('/approval.html?t=');
       const customerPage = await context.newPage();
@@ -188,6 +198,7 @@ test('iPhone production end-to-end workshop journey', async ({ page, context }, 
       await customerPage.goto(approvalUrl, { waitUntil: 'domcontentloaded' });
       await expect(customerPage.locator('#approvalStatus')).toContainText('Awaiting your decision');
       await expect(customerPage.locator('#approvalTotals')).toContainText('£12.00');
+      await expect(customerPage.locator('#approvalLegalAck')).toBeVisible();
       await customerPage.fill('#customerApprovalName', identity.marker);
       const box = await customerPage.locator('#customerSig').boundingBox();
       if (box) {
@@ -197,9 +208,12 @@ test('iPhone production end-to-end workshop journey', async ({ page, context }, 
         await customerPage.mouse.move(box.x + 150, box.y + 30, { steps: 8 });
         await customerPage.mouse.up();
       }
+      await customerPage.check('#approvalLegalAck');
+      await customerPage.check('#approvalEarlyStart');
       await customerPage.click('#approveQuoteBtn');
       await expect(customerPage.locator('#approvalStatus')).toContainText('Quote approved');
       await expect(customerPage.locator('#approvalMessage')).toContainText('sent to Ultimate Automotive Works');
+      await expect(customerPage.locator('#approvalMessage')).toContainText('legal acknowledgements');
       expect(customerFailures, customerFailures.join('\n')).toEqual([]);
       await customerPage.close();
     });
