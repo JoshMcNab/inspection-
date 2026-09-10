@@ -110,8 +110,12 @@ test('iPhone production end-to-end legal, quote and workshop journey', async ({ 
       await page.fill('#qrAddress','1 Automated Test Street'); await page.fill('#qrTownCity','Test Town'); await page.fill('#qrPostcode',postcode);
       await page.fill('#qrReg',registration); await page.fill('#qrModel','Automated Test Vehicle'); await page.fill('#qrYear','2026'); await page.fill('#qrMileage','12345');
       await page.selectOption('#qrType',{label:'Brakes'}); await page.fill('#qrDescription',description); await page.check('#qrConsent'); await page.check('#qrPrivacyAck');
+      // The public endpoint intentionally rejects unrealistically instant submissions as an anti-bot control.
+      // Give the production form the same review interval expected from a real customer before submitting.
+      await page.waitForTimeout(1350);
       const apiResponse=page.waitForResponse(r=>r.url().includes('service=quote_requests')&&r.request().method()==='POST');
-      await page.click('#submitQuoteRequest'); expect((await apiResponse).ok()).toBeTruthy();
+      await page.click('#submitQuoteRequest'); const submitted=await apiResponse;
+      if(!submitted.ok()) throw new Error(`Quote request returned HTTP ${submitted.status()}: ${await submitted.text().catch(()=> '')}`);
       await expect(page.locator('#quoteSuccess')).toBeVisible(); await expect(page.locator('#quoteReference')).toContainText('QR-');
     });
 
