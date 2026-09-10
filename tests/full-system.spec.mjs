@@ -19,6 +19,11 @@ async function waitForWorkshopUnlocked(page) {
   await expect.poll(async () => page.locator('#pinGate').evaluate(el => el.classList.contains('hidden')), { timeout: 30000 }).toBe(true);
 }
 
+async function waitForEnhancedQuoteTools(page) {
+  await expect.poll(async () => page.evaluate(() => window.saveQuote?.__quoteRevisionV18 === true), { timeout: 30000 }).toBe(true);
+  await expect(page.locator('#quoteRevisionTools')).toBeVisible({ timeout: 15000 });
+}
+
 async function signInAsAutomatedUser(page, identity) {
   await page.goto('/index.html?ci=1', { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('#staffUser');
@@ -133,13 +138,16 @@ test('iPhone production end-to-end legal, quote and workshop journey', async ({ 
     await test.step('Job creates a £12 quote with VAT forcibly disabled', async () => {
       await page.goto('/index.html?ci=job',{waitUntil:'domcontentloaded'}); await waitForWorkshopUnlocked(page); await page.evaluate(()=>window.workshopRefresh?.()); await page.waitForTimeout(700); await reopenTestJob(page,registration);
       await expect(page.locator('#jobWorkSummary')).toHaveValue(description); await page.click('#jobQuoteBtn'); await expect(page.locator('#quoteBuilder')).toHaveClass(/active/);
+      await waitForEnhancedQuoteTools(page);
       await expect.poll(async()=>page.locator('#vatRate').inputValue()).toBe('0');
       await expect(page.locator('#uaw-non-vat-vatRate')).toContainText('not VAT registered');
       if(await page.locator('#quoteLines .quote-line').count()===0)await page.getByRole('button',{name:/Add part/i}).click();
       const inputs=page.locator('#quoteLines .quote-line').first().locator('input');
       await inputs.nth(0).fill(description); await inputs.nth(1).fill('1'); await inputs.nth(2).fill('12'); await inputs.nth(3).fill('0');
       await page.fill('#quoteCustomerMessage','Automated self-test quote.'); await expect(page.locator('#quoteTotals')).toContainText('£12.00');
-      await page.getByRole('button',{name:/Create customer approval link/i}).click(); await expect(page.locator('#approvalLinkInput')).toBeVisible();
+      await page.getByRole('button',{name:/Create customer approval link/i}).click();
+      await expect(page.locator('#approvalShare')).not.toHaveClass(/hidden/, { timeout: 30000 });
+      await expect(page.locator('#approvalLinkInput')).toBeVisible({ timeout: 30000 });
     });
 
     await test.step('Backend cannot bypass legal approval; customer then signs and approves properly', async () => {
@@ -159,7 +167,7 @@ test('iPhone production end-to-end legal, quote and workshop journey', async ({ 
     });
 
     await test.step('Workshop sees approval and core tools still render', async () => {
-      await page.goto('/index.html?ci=approved',{waitUntil:'domcontentloaded'}); await waitForWorkshopUnlocked(page); await page.evaluate(()=>window.workshopRefresh?.()); await page.waitForTimeout(700); await reopenTestJob(page,registration); await page.click('#jobQuoteBtn'); await expect(page.locator('#quoteRevisionBadge')).toContainText('APPROVED'); expect(createdJobMessage).toMatch(/Created Job #\d+/);
+      await page.goto('/index.html?ci=approved',{waitUntil:'domcontentloaded'}); await waitForWorkshopUnlocked(page); await page.evaluate(()=>window.workshopRefresh?.()); await page.waitForTimeout(700); await reopenTestJob(page,registration); await page.click('#jobQuoteBtn'); await waitForEnhancedQuoteTools(page); await expect(page.locator('#quoteRevisionBadge')).toContainText('APPROVED'); expect(createdJobMessage).toMatch(/Created Job #\d+/);
       await page.goto('/operations.html?ci=tools',{waitUntil:'domcontentloaded'}); await waitForWorkshopUnlocked(page); await page.waitForSelector('#opsNav button[data-tool]'); await page.waitForTimeout(900);
       const tools=await page.locator('#opsNav button[data-tool]').evaluateAll(buttons=>[...new Set(buttons.map(b=>b.dataset.tool).filter(Boolean))]); expect(tools.length).toBeGreaterThan(8);
       for(const tool of tools){await page.evaluate(name=>window.showTool?.(name),tool);await expect(page.locator('#opsView')).toBeVisible();await page.waitForTimeout(100)}
