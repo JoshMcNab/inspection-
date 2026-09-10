@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='26.2';
+  const VERSION='26.3';
   const loaded=new Map();
 
   function asset(path){return `${path}?v=${VERSION}`}
@@ -28,7 +28,7 @@
     await loadScript('src/core/api-v25.js');
     await loadScript('src/core/auth-v25.js');
     await loadScript('src/core/features-v25.js');
-    document.documentElement.dataset.workshopVersion=window.WorkshopConfig?.version||'26.2';
+    document.documentElement.dataset.workshopVersion=window.WorkshopConfig?.version||'26.3';
   }
 
   boot().catch(error=>{
