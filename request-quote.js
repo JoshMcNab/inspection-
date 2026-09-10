@@ -1,5 +1,7 @@
 (()=>{
 const GATEWAY='https://rvkutsfyglopbhrnbotx.supabase.co/functions/v1/workshop-gateway';
+const PRIVACY_VERSION='UAW-PRIVACY-2026-09-10-1';
+const QUOTE_REQUEST_VERSION='UAW-QUOTE-REQUEST-2026-09-10-1';
 const form=document.getElementById('quoteRequestForm');
 const msg=document.getElementById('quoteFormMessage');
 const submit=document.getElementById('submitQuoteRequest');
@@ -69,6 +71,7 @@ form?.addEventListener('submit',async e=>{
   if(!phone&&!email){msg.textContent='Please enter a phone number or email address.';return}
   if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg.textContent='Please enter a valid email address.';return}
   if(!$('qrConsent').checked){msg.textContent='Please confirm that we may contact you about the quote request.';return}
+  if(!$('qrPrivacyAck').checked){msg.textContent='Please read and acknowledge the Privacy Notice before submitting.';return}
   submit.disabled=true;submit.firstChild.textContent='Sending… ';
   try{
     const encoded=[];for(const file of photos)encoded.push(await photoPayload(file));
@@ -76,7 +79,10 @@ form?.addEventListener('submit',async e=>{
       customer_name:name,phone,email,preferred_contact:$('qrPreferred').value,
       address:$('qrAddress').value.trim(),town_city:$('qrTownCity').value.trim(),postcode:$('qrPostcode').value.trim(),
       registration:reg,make_model:$('qrModel').value.trim(),year:$('qrYear').value.trim(),mileage:$('qrMileage').value,
-      request_type:$('qrType').value,description,photos:encoded,consent_contact:true,website:$('qrWebsite').value,form_started_at:startedAt,user_agent:navigator.userAgent,portal_token:portalToken
+      request_type:$('qrType').value,description,photos:encoded,
+      consent_contact:true,privacy_acknowledged:true,marketing_opt_in:!!$('qrMarketing')?.checked,
+      privacy_version:PRIVACY_VERSION,quote_request_version:QUOTE_REQUEST_VERSION,
+      website:$('qrWebsite').value,form_started_at:startedAt,user_agent:navigator.userAgent,portal_token:portalToken
     });
     form.classList.add('hidden');$('quoteReference').textContent=result.reference||'REQUEST RECEIVED';$('quoteSuccess').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});
   }catch(err){msg.textContent=err.message||'Unable to send the quote request. Please try again.';submit.disabled=false;submit.innerHTML='Send Quote Request <span>›</span>'}
