@@ -6,13 +6,13 @@
 <meta name="theme-color" content="#070b12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Request a Quote · Ultimate Automotive Works</title>
-<link rel="stylesheet" href="request-quote.css?v=26.0">
+<link rel="stylesheet" href="request-quote.css?v=26.2">
 </head>
 <body>
 <main class="quote-page">
   <section class="quote-shell">
     <header class="quote-brand">
-      <img src="logo.png?v=26.0" alt="Ultimate Automotive Works">
+      <img src="logo.png?v=26.2" alt="Ultimate Automotive Works">
       <div>
         <p>ULTIMATE AUTOMOTIVE WORKS</p>
         <h1>Request a Quote</h1>
@@ -36,6 +36,9 @@
           </label>
           <label>Phone<input id="qrPhone" type="tel" autocomplete="tel" maxlength="80" placeholder="e.g. 07…"></label>
           <label>Email<input id="qrEmail" type="email" autocomplete="email" maxlength="180" placeholder="name@example.com"></label>
+          <label class="full">Address <span class="optional">(optional)</span><textarea id="qrAddress" autocomplete="street-address" maxlength="500" placeholder="House number and street"></textarea></label>
+          <label>Town / city<input id="qrTownCity" autocomplete="address-level2" maxlength="160" placeholder="Town or city"></label>
+          <label>Postcode<input id="qrPostcode" autocomplete="postal-code" maxlength="20" autocapitalize="characters" placeholder="AB1 2CD"></label>
         </div>
         <p class="hint">Please provide at least a phone number or email address.</p>
       </section>
@@ -91,12 +94,12 @@
       <h2>Thank you</h2>
       <p>Your quote request has been sent to Ultimate Automotive Works. We will review the details and contact you using your preferred method.</p>
       <div class="reference">Reference <strong id="quoteReference"></strong></div>
-      <a href="request-quote.html?v=26.0" class="secondary-link">Send another request</a>
+      <a href="request-quote.html?v=26.2" class="secondary-link">Send another request</a>
     </section>
 
     <footer>Ultimate Automotive Works · Repair · Maintenance · Diagnostics</footer>
   </section>
 </main>
-<script src="request-quote.js?v=26.0"></script>
+<script src="request-quote.js?v=26.2"></script>
 </body>
 </html>
