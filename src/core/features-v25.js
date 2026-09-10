@@ -5,6 +5,7 @@
   const common=[
     'progress-v16.js',
     'quote-revision-v18.js',
+    'src/features/quotes/revised-quote-toggle-v26.js',
     'offline-v20.js',
     'customer-notify-v20.js',
     'notification-context-v21.js',
