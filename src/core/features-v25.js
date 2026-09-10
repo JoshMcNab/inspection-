@@ -10,6 +10,7 @@
     'notification-context-v21.js',
     'monitor-v20.js',
     'src/features/loyalty/guard-v25.js',
+    'src/features/jobs/quote-request-status-v26.js',
     'repair-data-v23.js'
   ];
   const pageFeatures={
