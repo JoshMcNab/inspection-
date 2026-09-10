@@ -66,6 +66,8 @@ test('@smoke public pages, legal notices, assets and form validation load cleanl
   await expect(page.locator('#qrAddress')).toBeVisible();
   await expect(page.locator('#qrTownCity')).toBeVisible();
   await expect(page.locator('#qrPostcode')).toBeVisible();
+  await expect(page.locator('#qrPrivacyAck')).toBeVisible();
+  await expect(page.locator('#qrMarketing')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Privacy Notice' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Workshop Terms' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Cancellation Information' })).toBeVisible();
@@ -115,7 +117,7 @@ test('iPhone production end-to-end workshop journey', async ({ page, context }, 
   const postcode = 'TEST 1CI';
 
   try {
-    await test.step('Customer submits a quote request with address', async () => {
+    await test.step('Customer submits a quote request with address and recorded privacy choice', async () => {
       await page.goto('/request-quote.html?ci=1', { waitUntil: 'domcontentloaded' });
       await page.fill('#qrName', identity.marker);
       await page.fill('#qrPhone', '07000000000');
@@ -130,6 +132,7 @@ test('iPhone production end-to-end workshop journey', async ({ page, context }, 
       await page.selectOption('#qrType', { label: 'Brakes' });
       await page.fill('#qrDescription', description);
       await page.check('#qrConsent');
+      await page.check('#qrPrivacyAck');
       const apiResponse = page.waitForResponse(r => r.url().includes('service=quote_requests') && r.request().method() === 'POST');
       await page.click('#submitQuoteRequest');
       expect((await apiResponse).ok()).toBeTruthy();
@@ -214,6 +217,9 @@ test('iPhone production end-to-end workshop journey', async ({ page, context }, 
       await expect(customerPage.locator('#approvalStatus')).toContainText('Quote approved');
       await expect(customerPage.locator('#approvalMessage')).toContainText('sent to Ultimate Automotive Works');
       await expect(customerPage.locator('#approvalMessage')).toContainText('legal acknowledgements');
+      await expect(customerPage.locator('#approvalReceipt')).toBeVisible();
+      await expect(customerPage.locator('#approvalReceiptDetails')).toContainText('UAW-TERMS-2026-09-10-1');
+      await expect(customerPage.locator('#approvalReceiptDetails')).toContainText('Yes');
       expect(customerFailures, customerFailures.join('\n')).toEqual([]);
       await customerPage.close();
     });
