@@ -153,12 +153,18 @@ test('iPhone production end-to-end legal, quote and workshop journey', async ({ 
       const customerPage=await context.newPage(); const customerFailures=[]; watchForFatalErrors(customerPage,customerFailures); await customerPage.goto(approvalUrl,{waitUntil:'domcontentloaded'});
       await expect(customerPage.locator('#approvalStatus')).toContainText('Awaiting your decision'); await expect(customerPage.locator('#approvalTotals')).toContainText('£12.00'); await expect(customerPage.locator('#approvalTotals')).toContainText('not VAT registered');
       await expect(customerPage.locator('.approval-legal')).toContainText('vehicle and its keys will not be released');
+      await expect(customerPage.locator('#approvalReceipt')).toBeHidden();
       const rawToken=new URL(approvalUrl).searchParams.get('t');
       const bypass=await customerPage.evaluate(async token=>{const r=await fetch('https://rvkutsfyglopbhrnbotx.supabase.co/functions/v1/workshop-gateway?service=quotes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'public_approve',token,approved:true,customer_name:'Bypass'})});return{status:r.status,body:await r.json()}},rawToken);
       expect(bypass.status).toBeGreaterThanOrEqual(400); expect(bypass.status).toBeLessThan(500); expect(String(bypass.body.error||'').length).toBeGreaterThan(0);
       await customerPage.fill('#customerApprovalName',identity.marker);
-      const box=await customerPage.locator('#customerSig').boundingBox(); if(box){await customerPage.mouse.move(box.x+20,box.y+35);await customerPage.mouse.down();await customerPage.mouse.move(box.x+90,box.y+65,{steps:8});await customerPage.mouse.move(box.x+150,box.y+30,{steps:8});await customerPage.mouse.up()}
-      await customerPage.check('#approvalTermsAck'); await customerPage.check('#approvalInfoAck'); await customerPage.check('#approvalEarlyStart'); await customerPage.click('#approveQuoteBtn');
+      const signature=customerPage.locator('#customerSig'); await signature.scrollIntoViewIfNeeded();
+      const box=await signature.boundingBox(); expect(box).not.toBeNull();
+      if(box){await customerPage.mouse.move(box.x+20,box.y+35);await customerPage.mouse.down();await customerPage.mouse.move(box.x+90,box.y+65,{steps:8});await customerPage.mouse.move(box.x+150,box.y+30,{steps:8});await customerPage.mouse.up()}
+      await customerPage.check('#approvalTermsAck'); await customerPage.check('#approvalInfoAck'); await customerPage.check('#approvalEarlyStart');
+      const approvalResponse=customerPage.waitForResponse(r=>r.url().includes('service=quotes')&&r.request().method()==='POST');
+      await customerPage.click('#approveQuoteBtn'); const approved=await approvalResponse;
+      if(!approved.ok()) throw new Error(`Quote approval returned HTTP ${approved.status()}: ${await approved.text().catch(()=> '')}`);
       await expect(customerPage.locator('#approvalReceipt')).toBeVisible({timeout:45000}); await expect(customerPage.locator('#approvalStatus')).toContainText('Quote approved',{timeout:45000});
       await expect(customerPage.locator('#approvalReceiptDetails')).toContainText('UAW-TERMS-2026-09-10-4'); await expect(customerPage.locator('#approvalReceiptDetails')).toContainText('UAW-PRIVACY-2026-09-10-3'); await expect(customerPage.locator('#approvalReceiptDetails')).toContainText('not VAT registered');
       await expect(customerPage.getByRole('button',{name:'Download approval record'})).toBeVisible(); expect(customerFailures,customerFailures.join('\n')).toEqual([]); await customerPage.close();
