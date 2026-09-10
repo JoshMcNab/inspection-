@@ -7,10 +7,33 @@
 <title>Quote Approval · Ultimate Automotive Works</title>
 <link rel="stylesheet" href="style.css?v=10">
 <link rel="stylesheet" href="approval.css?v=18">
+<link rel="stylesheet" href="legal.css?v=26.4">
 </head>
 <body>
-<main class="approval-main"><section class="approval-card"><img src="logo.png?v=10" class="approval-logo" alt="Ultimate Automotive Works"><p class="eyebrow">CUSTOMER QUOTE APPROVAL</p><h1 id="approvalTitle">Loading quote…</h1><p id="approvalSub" class="muted"></p><div id="approvalStatus" class="approval-status"></div><div id="approvalItems" class="approval-items"></div><div id="approvalTotals" class="detail-card"></div><div id="approvalForm" class="approval-form hidden"><label>Your name<input id="customerApprovalName" placeholder="Customer name"></label><div class="signature-box"><p>Signature</p><canvas id="customerSig"></canvas><button type="button" class="secondary small" onclick="clearCustomerSig()">Clear</button></div><button id="approveQuoteBtn" class="primary big" onclick="submitApproval(true)">✓ Approve quote</button><button class="secondary big decline-button" onclick="submitApproval(false)">Decline quote</button><p class="approval-note">Your decision, approved amount and maximum authorised amount are recorded against the workshop job with a date and time.</p></div><p id="approvalMessage" class="approval-message"></p></section></main>
+<main class="approval-main"><section class="approval-card">
+<img src="logo.png?v=10" class="approval-logo" alt="Ultimate Automotive Works">
+<p class="eyebrow">CUSTOMER QUOTE APPROVAL</p>
+<h1 id="approvalTitle">Loading quote…</h1>
+<p id="approvalSub" class="muted"></p>
+<div id="approvalStatus" class="approval-status"></div>
+<div id="approvalItems" class="approval-items"></div>
+<div id="approvalTotals" class="detail-card"></div>
+<div id="approvalForm" class="approval-form hidden">
+  <label>Your name<input id="customerApprovalName" autocomplete="name" placeholder="Customer name"></label>
+  <div class="signature-box"><p>Signature</p><canvas id="customerSig"></canvas><button type="button" class="secondary small" onclick="clearCustomerSig()">Clear</button><p class="signature-required"><strong>Required for approval.</strong> Please sign inside the box.</p></div>
+  <div class="approval-legal">
+    <label class="legal-check"><input id="approvalLegalAck" type="checkbox"><span>I have read and agree to the <a href="terms.html" target="_blank" rel="noopener">Workshop Terms</a>, and I have read the <a href="privacy.html" target="_blank" rel="noopener">Privacy Notice</a> and <a href="cancellation.html" target="_blank" rel="noopener">Cancellation Information</a>. I authorise the work and maximum amount shown above.</span></label>
+    <label class="legal-check"><input id="approvalEarlyStart" type="checkbox"><span>I expressly request that Ultimate Automotive Works may start this service before the end of any statutory 14-day cancellation period that applies. I understand that if I cancel after work starts I may have to pay a reasonable proportion for work already supplied, and that if the service is fully completed after my request I may lose the right to cancel that completed service.</span></label>
+    <small>The early-start option is optional. Leave it unticked if you do not want this online approval to request an early start during an applicable cancellation period.</small>
+  </div>
+  <button id="approveQuoteBtn" class="primary big" onclick="submitApproval(true)">✓ Approve quote</button>
+  <button class="secondary big decline-button" onclick="submitApproval(false)">Decline quote</button>
+  <p class="approval-note">Your decision, approved amount, maximum authorised amount, legal acknowledgement and date/time are recorded against the workshop job.</p>
+</div>
+<p id="approvalMessage" class="approval-message"></p>
+<footer class="customer-legal-footer">Ultimate Automotive Works · Repair · Maintenance · Diagnostics<div class="legal-footer-links"><a href="privacy.html">Privacy Notice</a><a href="terms.html">Workshop Terms</a><a href="cancellation.html">Cancellation Information</a><a href="complaints.html">Complaints</a></div></footer>
+</section></main>
 <script src="public-gateway.js?v=16"></script>
-<script src="approval.js?v=18"></script>
+<script src="approval.js?v=26.4"></script>
 </body>
 </html>
