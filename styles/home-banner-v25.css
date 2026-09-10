@@ -1,4 +1,4 @@
-/* v25.5 approved workshop hero banner.
+/* v26.3 workshop hero banner.
    The original logo.png is blended directly into the banner background stack so it cannot be hidden by DOM/layout timing. */
 #home.uaw-home-v25 .workshop-banner{
   display:block!important;
@@ -12,7 +12,7 @@
   border:1px solid #31415a!important;
   border-radius:24px!important;
   background-color:#05080d!important;
-  background-image:url('../logo.png?v=25.5'),url('../assets/home-hero-v25.svg?v=25.5')!important;
+  background-image:url('../logo.png?v=26.3'),url('../assets/home-hero-v25.svg?v=26.3')!important;
   background-repeat:no-repeat,no-repeat!important;
   background-position:5% 51%,center center!important;
   background-size:40% auto,cover!important;
