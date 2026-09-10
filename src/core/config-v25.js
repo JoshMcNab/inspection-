@@ -1,12 +1,12 @@
 (()=>{
-  const VERSION='26.2.0';
+  const VERSION='26.3.0';
   const BASE='https://rvkutsfyglopbhrnbotx.supabase.co/functions/v1/';
   const GATEWAY=BASE+'workshop-gateway';
 
   const config={
     appName:'Ultimate Automotive Works Workshop',
     version:VERSION,
-    assetVersion:'26.2',
+    assetVersion:'26.3',
     supabase:{base:BASE,gateway:GATEWAY},
     storage:{
       token:'workshopPinSession',
