@@ -33,6 +33,7 @@ photoInput?.addEventListener('change',()=>{
   photos=[...photos,...picked].slice(0,3);photoInput.value='';renderPhotos();
 });
 $('qrReg')?.addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase()});
+$('qrPostcode')?.addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase()});
 
 function readAsDataURL(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result||''));r.onerror=()=>reject(new Error('Could not read one of the photos'));r.readAsDataURL(file)})}
 async function photoPayload(file){
@@ -72,7 +73,9 @@ form?.addEventListener('submit',async e=>{
   try{
     const encoded=[];for(const file of photos)encoded.push(await photoPayload(file));
     const result=await api('quote_requests','submit',{
-      customer_name:name,phone,email,preferred_contact:$('qrPreferred').value,registration:reg,make_model:$('qrModel').value.trim(),year:$('qrYear').value.trim(),mileage:$('qrMileage').value,
+      customer_name:name,phone,email,preferred_contact:$('qrPreferred').value,
+      address:$('qrAddress').value.trim(),town_city:$('qrTownCity').value.trim(),postcode:$('qrPostcode').value.trim(),
+      registration:reg,make_model:$('qrModel').value.trim(),year:$('qrYear').value.trim(),mileage:$('qrMileage').value,
       request_type:$('qrType').value,description,photos:encoded,consent_contact:true,website:$('qrWebsite').value,form_started_at:startedAt,user_agent:navigator.userAgent,portal_token:portalToken
     });
     form.classList.add('hidden');$('quoteReference').textContent=result.reference||'REQUEST RECEIVED';$('quoteSuccess').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});
