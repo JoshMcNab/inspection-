@@ -1,12 +1,12 @@
 (()=>{
-  const VERSION='25.6.0';
+  const VERSION='26.0.0';
   const BASE='https://rvkutsfyglopbhrnbotx.supabase.co/functions/v1/';
   const GATEWAY=BASE+'workshop-gateway';
 
   const config={
     appName:'Ultimate Automotive Works Workshop',
     version:VERSION,
-    assetVersion:'25.6',
+    assetVersion:'26.0',
     supabase:{base:BASE,gateway:GATEWAY},
     storage:{
       token:'workshopPinSession',
@@ -24,6 +24,7 @@
       progress:'workshop-progress',
       payments:'workshop-payments',
       quotes:'workshop-quotes',
+      quote_requests:'workshop-quote-requests',
       sync:'workshop-sync',
       notify:'workshop-notify',
       monitor:'workshop-monitor',
@@ -40,6 +41,7 @@
       'workshop-progress':'progress',
       'workshop-payments':'payments',
       'workshop-quotes':'quotes',
+      'workshop-quote-requests':'quote_requests',
       'workshop-sync':'sync',
       'workshop-notify':'notify',
       'workshop-monitor':'monitor',
