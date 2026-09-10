@@ -50,6 +50,16 @@ async function reopenTestJob(page, registration) {
   await expect(page.locator('#jobForm')).toHaveClass(/active/);
 }
 
+async function openQuoteRequests(page) {
+  await page.waitForSelector('#opsNav button[data-tool="quote-requests"]');
+  // operations.js performs an initial dashboard render after authentication. Wait for that
+  // one-time bootstrap to settle, then open Quote Requests through the same public UI hook.
+  await page.waitForTimeout(900);
+  await page.evaluate(() => window.showTool?.('quote-requests'));
+  await expect(page.getByRole('heading', { name: 'Quote Requests' })).toBeVisible();
+  await expect(page.locator('#quoteRequestList')).toBeVisible();
+}
+
 test('@smoke public pages, assets and form validation load cleanly', async ({ page, request }) => {
   const failures = [];
   watchForFatalErrors(page, failures);
@@ -123,8 +133,9 @@ test('iPhone production end-to-end workshop journey', async ({ page, context }, 
 
     let createdJobMessage = '';
     await test.step('Quote request reaches Workshop Pro and converts to a job', async () => {
-      await page.goto('/operations.html?tool=quote-requests&ci=1', { waitUntil: 'domcontentloaded' });
+      await page.goto('/operations.html?ci=1', { waitUntil: 'domcontentloaded' });
       await waitForWorkshopUnlocked(page);
+      await openQuoteRequests(page);
       const card = page.locator('.qr-request').filter({ hasText: identity.marker }).first();
       await expect(card).toBeVisible();
       await expect(card).toContainText(registration);
@@ -137,7 +148,10 @@ test('iPhone production end-to-end workshop journey', async ({ page, context }, 
       await card.locator('button.convert').click();
       await expect.poll(async () => page.evaluate(() => window.__ciAlert || '')).toContain('Created Job #');
       createdJobMessage = await page.evaluate(() => window.__ciAlert || '');
-      await expect(page.locator('.qr-request').filter({ hasText: identity.marker }).first()).toContainText('Converted');
+      await openQuoteRequests(page);
+      const convertedCard = page.locator('.qr-request').filter({ hasText: identity.marker }).first();
+      await expect(convertedCard).toBeVisible();
+      await expect(convertedCard).toContainText('Converted');
     });
 
     await test.step('Job card opens and a £12 fixed quote is generated', async () => {
@@ -205,7 +219,7 @@ test('iPhone production end-to-end workshop journey', async ({ page, context }, 
       await page.goto('/operations.html?ci=tools', { waitUntil: 'domcontentloaded' });
       await waitForWorkshopUnlocked(page);
       await page.waitForSelector('#opsNav button[data-tool]');
-      await page.waitForTimeout(600);
+      await page.waitForTimeout(900);
       const tools = await page.locator('#opsNav button[data-tool]').evaluateAll(buttons => [...new Set(buttons.map(b => b.dataset.tool).filter(Boolean))]);
       expect(tools.length).toBeGreaterThan(8);
       for (const tool of tools) {
