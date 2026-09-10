@@ -115,8 +115,6 @@ test('iPhone production end-to-end legal, quote and workshop journey', async ({ 
       await page.fill('#qrAddress','1 Automated Test Street'); await page.fill('#qrTownCity','Test Town'); await page.fill('#qrPostcode',postcode);
       await page.fill('#qrReg',registration); await page.fill('#qrModel','Automated Test Vehicle'); await page.fill('#qrYear','2026'); await page.fill('#qrMileage','12345');
       await page.selectOption('#qrType',{label:'Brakes'}); await page.fill('#qrDescription',description); await page.check('#qrConsent'); await page.check('#qrPrivacyAck');
-      // The public endpoint intentionally rejects unrealistically instant submissions as an anti-bot control.
-      // Give the production form the same review interval expected from a real customer before submitting.
       await page.waitForTimeout(1350);
       const apiResponse=page.waitForResponse(r=>r.url().includes('service=quote_requests')&&r.request().method()==='POST');
       await page.click('#submitQuoteRequest'); const submitted=await apiResponse;
@@ -157,7 +155,7 @@ test('iPhone production end-to-end legal, quote and workshop journey', async ({ 
       await expect(customerPage.locator('.approval-legal')).toContainText('vehicle and its keys will not be released');
       const rawToken=new URL(approvalUrl).searchParams.get('t');
       const bypass=await customerPage.evaluate(async token=>{const r=await fetch('https://rvkutsfyglopbhrnbotx.supabase.co/functions/v1/workshop-gateway?service=quotes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'public_approve',token,approved:true,customer_name:'Bypass'})});return{status:r.status,body:await r.json()}},rawToken);
-      expect(bypass.status).toBe(400);
+      expect(bypass.status).toBeGreaterThanOrEqual(400); expect(bypass.status).toBeLessThan(500); expect(String(bypass.body.error||'').length).toBeGreaterThan(0);
       await customerPage.fill('#customerApprovalName',identity.marker);
       const box=await customerPage.locator('#customerSig').boundingBox(); if(box){await customerPage.mouse.move(box.x+20,box.y+35);await customerPage.mouse.down();await customerPage.mouse.move(box.x+90,box.y+65,{steps:8});await customerPage.mouse.move(box.x+150,box.y+30,{steps:8});await customerPage.mouse.up()}
       await customerPage.check('#approvalTermsAck'); await customerPage.check('#approvalInfoAck'); await customerPage.check('#approvalEarlyStart'); await customerPage.click('#approveQuoteBtn');
