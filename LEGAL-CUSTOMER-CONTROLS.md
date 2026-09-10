@@ -22,6 +22,14 @@ The quote-approval flow requires a customer name, an actual drawn signature, acc
 
 Approval evidence records the quote revision, approved amount, maximum authorised amount, customer name/signature, legal document versions, acknowledgement timestamps, early-start choice, timestamp, a one-way hash of the originating IP where available, and user-agent information. Approval links expire after 30 days. Revised approved quotes preserve the prior approval/legal record and require a fresh approval where the quoted work or price changes.
 
+## Database-enforced consent ledger
+
+The database now independently enforces the current legal-document versions as well as the browser and Edge Function checks. A new quote request cannot be inserted unless service contact is acknowledged and the current Privacy Notice and quote-request versions are supplied. A quote cannot move into `approved` status unless the current legal, terms, privacy and cancellation versions are present together with the required acknowledgement timestamps, customer name and recorded signature. Expired approval links are rejected.
+
+Each successful quote request writes separate consent-event records for service contact, privacy acknowledgement and the customer's marketing choice. Each successful quote approval writes separate records for Workshop Terms acceptance, Privacy Notice acknowledgement, Cancellation Information acknowledgement, the early-start choice, quote authorisation, signature confirmation and the final quote decision. These records are held in the protected `customer_consents` table in addition to the legal fields stored against the quote/request and the normal audit event.
+
+This database layer means a stale or modified browser page cannot silently bypass the legal-version and signature requirements simply by calling the backend directly.
+
 ## Payment and vehicle release
 
 Workshop Terms version **UAW-TERMS-2026-09-10-4** states that, unless a different payment arrangement has been agreed with Ultimate Automotive Works LTD in advance, the vehicle and its keys will not be released until all outstanding sums due on the invoice for the authorised work have been paid in full. The term also expressly preserves statutory rights and the customer's ability to dispute a charge.
