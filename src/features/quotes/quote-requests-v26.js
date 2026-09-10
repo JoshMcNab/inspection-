@@ -10,7 +10,7 @@
 
   function ensureStyle(){
     if(document.querySelector('link[data-uaw-quote-requests]'))return;
-    const l=document.createElement('link');l.rel='stylesheet';l.href=`styles/quote-requests-v26.css?v=${encodeURIComponent(cfg?.assetVersion||'26.2')}`;l.dataset.uawQuoteRequests='1';document.head.appendChild(l);
+    const l=document.createElement('link');l.rel='stylesheet';l.href=`styles/quote-requests-v26.css?v=${encodeURIComponent(cfg?.assetVersion||'26.7')}`;l.dataset.uawQuoteRequests='1';document.head.appendChild(l);
   }
   async function api(action,payload={}){return window.WorkshopAPI.request('quote_requests',action,payload)}
   function setActive(){document.querySelectorAll('#opsNav button').forEach(b=>b.classList.toggle('active',b.dataset.tool==='quote-requests'))}
@@ -30,7 +30,7 @@
   function contactLinks(r){
     const out=[];
     if(r.phone){out.push(`<a href="tel:${esc(r.phone)}">☎ Call</a>`);const wa=normaliseWhatsApp(r.phone);if(wa)out.push(`<a href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp</a>`)}
-    if(r.email)out.push(`<a href="mailto:${esc(r.email)}?subject=${encodeURIComponent('Your quote request · Ultimate Automotive Works')}">✉ Email</a>`);
+    if(r.email)out.push(`<a href="mailto:${esc(r.email)}?subject=${encodeURIComponent('Your quote request · Ultimate Automotive Works LTD')}">✉ Email</a>`);
     return out.join('');
   }
   function photos(r){
@@ -41,10 +41,12 @@
     const ref=`QR-${String(r.id||'').slice(0,8).toUpperCase()}`;
     const converted=r.status==='converted'||r.job_id;
     const address=addressText(r)||'—';
+    const privacy=r.privacy_acknowledged?`Acknowledged${r.privacy_version?` · ${r.privacy_version}`:''}`:'Legacy / not recorded';
+    const marketing=r.marketing_opt_in?'Opted in':'No marketing opt-in';
     return `<article class="qr-request ${r.status==='new'?'is-new':''}" data-id="${esc(r.id)}">
       <div class="qr-request-head"><div><p class="qr-reference">${esc(ref)} · ${esc(r.request_type||'General quote')}</p><h3>${esc(r.registration||'Vehicle')} · ${esc(r.make_model||'Vehicle details not supplied')}</h3><p>${esc(r.customer_name||'Customer')} · ${esc(r.source==='portal'?'Customer portal':'Public request')}</p></div><span class="qr-time">${fmt(r.created_at)}</span></div>
       <div class="qr-request-body">
-        <div class="qr-meta"><div><span>Customer</span><b>${esc(r.customer_name||'—')}</b></div><div><span>Preferred contact</span><b>${esc(r.preferred_contact||'—')}</b></div><div><span>Phone</span><b>${esc(r.phone||'—')}</b></div><div><span>Email</span><b>${esc(r.email||'—')}</b></div><div class="qr-address"><span>Address</span><b>${esc(address)}</b></div><div><span>Vehicle</span><b>${esc([r.make_model,r.year].filter(Boolean).join(' · ')||'—')}</b></div><div><span>Mileage</span><b>${r.mileage?`${Number(r.mileage).toLocaleString()} miles`:'—'}</b></div></div>
+        <div class="qr-meta"><div><span>Customer</span><b>${esc(r.customer_name||'—')}</b></div><div><span>Preferred contact</span><b>${esc(r.preferred_contact||'—')}</b></div><div><span>Phone</span><b>${esc(r.phone||'—')}</b></div><div><span>Email</span><b>${esc(r.email||'—')}</b></div><div class="qr-address"><span>Address</span><b>${esc(address)}</b></div><div><span>Vehicle</span><b>${esc([r.make_model,r.year].filter(Boolean).join(' · ')||'—')}</b></div><div><span>Mileage</span><b>${r.mileage?`${Number(r.mileage).toLocaleString()} miles`:'—'}</b></div><div><span>Privacy record</span><b>${esc(privacy)}</b></div><div><span>Marketing</span><b>${esc(marketing)}</b></div></div>
         <div class="qr-description">${esc(r.description||'')}</div>
         <div class="qr-contact-actions">${contactLinks(r)}</div>
         ${photos(r)}
@@ -74,7 +76,7 @@
     try{const result=await api('convert',{id});alert(`Created Job #${result.job?.job_number||''}. You can now price it in Job Cards & Quotes.`);await loadList()}catch(e){alert(e.message)}
   }
   async function copyLink(){try{await navigator.clipboard.writeText(PUBLIC_LINK);alert('Quote request link copied.')}catch(_){prompt('Copy this quote request link:',PUBLIC_LINK)}}
-  async function shareLink(){if(navigator.share){try{await navigator.share({title:'Request a Quote · Ultimate Automotive Works',text:'Request a quote from Ultimate Automotive Works',url:PUBLIC_LINK});return}catch(_){}}copyLink()}
+  async function shareLink(){if(navigator.share){try{await navigator.share({title:'Request a Quote · Ultimate Automotive Works LTD',text:'Request a quote from Ultimate Automotive Works LTD',url:PUBLIC_LINK});return}catch(_){}}copyLink()}
 
   window.saveQuoteRequest=save;window.convertQuoteRequest=convert;
   function install(){
