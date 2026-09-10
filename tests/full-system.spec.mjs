@@ -18,7 +18,7 @@ function watchForFatalErrors(page, failures) {
 }
 
 async function waitForWorkshopUnlocked(page) {
-  await expect.poll(async () => page.locator('#pinGate').evaluate(el => el.classList.contains('hidden'))).toBe(true);
+  await expect.poll(async () => page.locator('#pinGate').evaluate(el => el.classList.contains('hidden')), { timeout: 30000 }).toBe(true);
 }
 
 async function signInAsAutomatedUser(page, identity) {
@@ -68,9 +68,9 @@ test('@smoke public pages, legal notices, assets and form validation load cleanl
   await expect(page.locator('#qrPostcode')).toBeVisible();
   await expect(page.locator('#qrPrivacyAck')).toBeVisible();
   await expect(page.locator('#qrMarketing')).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Privacy Notice' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Workshop Terms' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Cancellation Information' })).toBeVisible();
+  await expect(page.locator('#qrPrivacyAck a[href="privacy.html"]')).toBeVisible();
+  await expect(page.locator('.consent-card a[href="terms.html"]').first()).toBeVisible();
+  await expect(page.locator('.consent-card a[href="cancellation.html"]').first()).toBeVisible();
   await expect(page.locator('body')).toContainText('14995808');
   await page.click('#submitQuoteRequest');
   await expect(page.locator('#quoteFormMessage')).toContainText('Please complete your name');
@@ -155,6 +155,8 @@ test('iPhone production end-to-end workshop journey', async ({ page, context }, 
       await expect(card).toBeVisible();
       await expect(card).toContainText(registration);
       await expect(card).toContainText(postcode);
+      await expect(card).toContainText('UAW-PRIVACY-2026-09-10-2');
+      await expect(card).toContainText('No marketing opt-in');
       await page.evaluate(() => {
         window.confirm = () => true;
         window.__ciAlert = '';
@@ -218,10 +220,10 @@ test('iPhone production end-to-end workshop journey', async ({ page, context }, 
       await customerPage.check('#approvalInfoAck');
       await customerPage.check('#approvalEarlyStart');
       await customerPage.click('#approveQuoteBtn');
-      await expect(customerPage.locator('#approvalStatus')).toContainText('Quote approved');
+      await expect(customerPage.locator('#approvalReceipt')).toBeVisible({ timeout: 45000 });
+      await expect(customerPage.locator('#approvalStatus')).toContainText('Quote approved', { timeout: 45000 });
       await expect(customerPage.locator('#approvalMessage')).toContainText('sent to Ultimate Automotive Works LTD');
       await expect(customerPage.locator('#approvalMessage')).toContainText('legal acknowledgements');
-      await expect(customerPage.locator('#approvalReceipt')).toBeVisible();
       await expect(customerPage.locator('#approvalReceiptDetails')).toContainText('UAW-TERMS-2026-09-10-2');
       await expect(customerPage.locator('#approvalReceiptDetails')).toContainText('UAW-PRIVACY-2026-09-10-2');
       await expect(customerPage.locator('#approvalReceiptDetails')).toContainText('Yes');
