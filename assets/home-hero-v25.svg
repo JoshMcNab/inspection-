@@ -42,12 +42,8 @@
       <path d="M30 0L420 510"/><path d="M300 0L660 510"/><path d="M1040 0L790 510"/><path d="M1320 0L990 510"/>
     </g>
 
-    <!-- neon lights -->
+    <!-- neon lights: left-side red lights removed so they do not show through the logo -->
     <g>
-      <rect x="82" y="112" width="12" height="360" rx="6" fill="#ff1f2d"/>
-      <rect x="80" y="112" width="16" height="360" rx="8" fill="#ff1f2d" opacity="0.55" filter="url(#redBlur)"/>
-      <rect x="493" y="90" width="11" height="390" rx="6" fill="#ff1f2d"/>
-      <rect x="491" y="90" width="15" height="390" rx="8" fill="#ff1f2d" opacity="0.5" filter="url(#redBlur)"/>
       <rect x="1058" y="94" width="9" height="285" rx="5" fill="#ff1f2d" opacity="0.75"/>
     </g>
     <g stroke="#d9f5ff" stroke-linecap="round">
