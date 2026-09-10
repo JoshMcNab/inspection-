@@ -14,7 +14,7 @@
   ];
   const pageFeatures={
     index:[...common,'src/features/home/home-v25.js'],
-    operations:[...common,'parts-catalog-v24.js']
+    operations:[...common,'parts-catalog-v24.js','src/features/quotes/quote-requests-v26.js']
   };
 
   function pageName(){return /operations\.html$/i.test(location.pathname)?'operations':'index'}
