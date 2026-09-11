@@ -4,7 +4,7 @@ const baseURL = process.env.UAW_BASE_URL || 'https://app.ultimateautomotiveworks
 
 export default defineConfig({
   testDir: './tests',
-  testMatch: /full-system\.spec\.mjs/,
+  testMatch: /production-smoke\.spec\.mjs/,
   timeout: 90_000,
   expect: { timeout: 15_000 },
   fullyParallel: false,
@@ -28,7 +28,6 @@ export default defineConfig({
     },
     {
       name: 'desktop-chromium',
-      grep: /@smoke/,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } }
     }
   ]
