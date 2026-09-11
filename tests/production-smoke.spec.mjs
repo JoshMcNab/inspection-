@@ -70,7 +70,7 @@ test('public pages, legal notices and company disclosure load cleanly', async ({
   const approval = await request.get('/approval.html?production-smoke=1');
   expect(approval.ok()).toBeTruthy();
   const approvalHtml = await approval.text();
-  for (const marker of ['customerApprovalName','customerSig','approvalTerms','approvalLegalAck','approvalEarlyStart','approvalReceipt']) {
+  for (const marker of ['customerApprovalName','customerSig','approvalTermsAck','approvalInfoAck','approvalEarlyStart','approvalReceipt']) {
     expect(approvalHtml, `approval page should include ${marker}`).toContain(marker);
   }
   expect(approvalHtml).toContain('UAW-TERMS-2026-09-10-4');
