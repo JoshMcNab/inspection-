@@ -1,4 +1,4 @@
-name: Workshop full self-test
+name: Workshop production smoke test
 
 on:
   push:
@@ -12,11 +12,11 @@ permissions:
   id-token: write
 
 concurrency:
-  group: workshop-production-self-test
+  group: workshop-production-smoke-test
   cancel-in-progress: false
 
 jobs:
-  self-test:
+  smoke-test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -67,18 +67,14 @@ jobs:
       - name: Install production browsers
         run: npx playwright install --with-deps chromium webkit
 
-      - name: Run full workshop self-test
-        run: npm run test:self
-
-      - name: Always remove automated test data
-        if: always()
-        run: node tests/cleanup.mjs
+      - name: Run read-only production smoke tests
+        run: npx playwright test tests/production-smoke.spec.mjs
 
       - name: Upload failure report
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: workshop-self-test-report-${{ github.run_id }}
+          name: workshop-production-smoke-report-${{ github.run_id }}
           path: |
             playwright-report
             test-results
