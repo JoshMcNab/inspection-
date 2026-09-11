@@ -58,18 +58,72 @@ test('public pages, legal notices and company disclosure load cleanly', async ({
     await expect(page.locator('#pinGate')).toBeVisible();
   }
 
-  for (const path of ['/manifest.json','/sw-v20.js','/logo.png','/legal.css']) {
+  for (const path of [
+    '/manifest.json','/sw-v20.js','/logo.png','/legal.css',
+    '/legal/terms-UAW-TERMS-2026-09-10-4.html',
+    '/legal/privacy-UAW-PRIVACY-2026-09-10-3.html',
+    '/legal/cancellation-UAW-CANCEL-2026-09-10-3.html'
+  ]) {
     const asset = await request.get(path); expect(asset.ok(), `${path} should be available`).toBeTruthy();
   }
+
+  const approval = await request.get('/approval.html?production-smoke=1');
+  expect(approval.ok()).toBeTruthy();
+  const approvalHtml = await approval.text();
+  for (const marker of ['customerApprovalName','customerSig','approvalTerms','approvalLegalAck','approvalEarlyStart','approvalReceipt']) {
+    expect(approvalHtml, `approval page should include ${marker}`).toContain(marker);
+  }
+  expect(approvalHtml).toContain('UAW-TERMS-2026-09-10-4');
+  expect(approvalHtml).toContain('UAW-PRIVACY-2026-09-10-3');
+  expect(approvalHtml).toContain('UAW-CANCEL-2026-09-10-3');
   expect(failures, failures.join('\n')).toEqual([]);
 });
 
-test('production backend health check is read-only', async () => {
+test('production backend health check is read-only and legal controls are present', async () => {
   const health = await callSelfTest('health');
   expect(health.ok).toBe(true);
   expect(health.mode).toBe('read-only-production');
   expect(health.database?.customer_consents).toBe(true);
   expect(health.storage?.quote_request_uploads).toBe(true);
+  expect(health.legal?.quote_request_consent_fields).toBe(true);
+  expect(health.legal?.quote_approval_consent_fields).toBe(true);
+  expect(health.legal?.consent_ledger_fields).toBe(true);
+  expect(health.legal?.legal_version).toBe('UAW-LEGAL-2026-09-10-4');
+  expect(health.legal?.terms_version).toBe('UAW-TERMS-2026-09-10-4');
+  expect(health.legal?.privacy_version).toBe('UAW-PRIVACY-2026-09-10-3');
+  expect(health.legal?.cancellation_version).toBe('UAW-CANCEL-2026-09-10-3');
+  expect(health.legal?.quote_request_version).toBe('UAW-QUOTE-REQUEST-2026-09-10-3');
+  expect(health.legal?.vat_mode).toBe('not-vat-registered');
+});
+
+test('quote request backend rejects missing or stale legal acknowledgement without creating data', async ({ page }) => {
+  const endpoint = `${supabaseBase}/workshop-gateway?service=quote_requests`;
+  const common = {
+    action: 'submit',
+    customer_name: 'Production smoke validation',
+    phone: '07000000000',
+    registration: 'TEST000',
+    description: 'Read-only validation request; this must never be inserted.',
+    consent_contact: true,
+    quote_request_version: 'UAW-QUOTE-REQUEST-2026-09-10-3',
+    form_started_at: Date.now() - 5000
+  };
+
+  const missingPrivacy = await postFromSite(page, endpoint, {
+    ...common,
+    privacy_acknowledged: false,
+    privacy_version: 'UAW-PRIVACY-2026-09-10-3'
+  });
+  expect(missingPrivacy.status).toBe(400);
+  expect(String(missingPrivacy.body?.error || '')).toContain('Privacy Notice');
+
+  const staleVersion = await postFromSite(page, endpoint, {
+    ...common,
+    privacy_acknowledged: true,
+    privacy_version: 'UAW-PRIVACY-OLD'
+  });
+  expect(staleVersion.status).toBe(409);
+  expect(String(staleVersion.body?.error || '')).toContain('changed');
 });
 
 test('unauthenticated workshop data routes are denied', async ({ page }) => {
