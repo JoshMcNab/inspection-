@@ -13,7 +13,7 @@ permissions:
 
 concurrency:
   group: workshop-production-smoke-test
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   smoke-test:
