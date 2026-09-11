@@ -1,7 +1,7 @@
 # Ultimate Automotive Works LTD — customer/legal controls
 
-Technical release: **v26.9**  
-Review date: **10 September 2026**
+Technical release: **v26.9 security hardening**  
+Review date: **11 September 2026**
 
 This document records the technical controls implemented in the workshop application. It is an operational record, not legal advice and not a substitute for review by a UK solicitor or other appropriately qualified adviser.
 
@@ -24,7 +24,7 @@ Approval evidence records the quote revision, approved amount, maximum authorise
 
 ## Database-enforced consent ledger
 
-The database now independently enforces the current legal-document versions as well as the browser and Edge Function checks. A new quote request cannot be inserted unless service contact is acknowledged and the current Privacy Notice and quote-request versions are supplied. A quote cannot move into `approved` status unless the current legal, terms, privacy and cancellation versions are present together with the required acknowledgement timestamps, customer name and recorded signature. Expired approval links are rejected.
+The database independently enforces the current legal-document versions as well as the browser and Edge Function checks. A new quote request cannot be inserted unless service contact is acknowledged and the current Privacy Notice and quote-request versions are supplied. A quote cannot move into `approved` status unless the current legal, terms, privacy and cancellation versions are present together with the required acknowledgement timestamps, customer name and recorded signature. Expired approval links are rejected.
 
 Each successful quote request writes separate consent-event records for service contact, privacy acknowledgement and the customer's marketing choice. Each successful quote approval writes separate records for Workshop Terms acceptance, Privacy Notice acknowledgement, Cancellation Information acknowledgement, the early-start choice, quote authorisation, signature confirmation and the final quote decision. These records are held in the protected `customer_consents` table in addition to the legal fields stored against the quote/request and the normal audit event.
 
@@ -46,6 +46,14 @@ Protected workshop tables use row-level security and service access is mediated 
 
 While Ultimate Automotive Works LTD remains not VAT registered, the quote backend forces the VAT rate to zero regardless of client input. If the VAT status changes, this control and the customer/legal documents must be updated before VAT is charged.
 
+## Production security and testing controls
+
+The legacy quote/authentication actions formerly exposed by `workshop-inspections` are retired. Quote creation, approval-link generation and customer approval must use the current quote service, which enforces approval expiry, single-decision state, signature requirements and the current legal-document versions. The inspection service now requires a valid workshop session for workshop data and explicitly refuses the retired legacy quote/login actions.
+
+Production automated testing is **read-only**. The production self-test control accepts only a health check and cannot provision synthetic staff, create customer/job/quote records, approve quotes or delete cleanup records. The production GitHub workflow runs smoke/access-control tests only. State-changing end-to-end testing must be carried out against an isolated staging/test database rather than live customer data.
+
+The previous production mutation/cleanup mechanism, which could select synthetic records by editable customer-name markers and follow linked records for deletion, has been disabled and its production test/cleanup scripts removed.
+
 ## Current legal-document versions
 
 - Legal record: `UAW-LEGAL-2026-09-10-4`
@@ -54,4 +62,4 @@ While Ultimate Automotive Works LTD remains not VAT registered, the quote backen
 - Cancellation Information: `UAW-CANCEL-2026-09-10-3`
 - Quote request information: `UAW-QUOTE-REQUEST-2026-09-10-3`
 
-Automated production tests cover these customer journeys and legal-version checks. Any future legal-text change should increment the relevant version and update the corresponding backend validation and tests so a stale page cannot silently record acceptance to superseded wording.
+Production tests verify public pages, company disclosures, legal documents, protected-route denial, retired legacy-route denial, invalid customer-token handling and read-only backend health. Any future legal-text change should increment the relevant version and update the corresponding backend validation and tests so a stale page cannot silently record acceptance to superseded wording.
